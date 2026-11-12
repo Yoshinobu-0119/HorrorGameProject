@@ -3,7 +3,7 @@ using UnityEngine;
 public interface IEnemyAction
 {
     //s“®‚Ì—Dæ‡ˆÊ
-    int Priolity { get; }
+    int Priority { get; }
 
     //s“®‚ğÀs‚Å‚«‚é‚©
     bool CanExecute();

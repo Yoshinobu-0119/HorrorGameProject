@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: TestHeal1
   m_EditorClassIdentifier: 
   id: 2
-  itemName: TestItem
-  icon: {fileID: 0}
+  itemName: TestHeal
+  icon: {fileID: 21300000, guid: 5937f15224feb92408804e6aebb37e01, type: 3}
   baseSellValue: 400
   maxStackSize: 32
   reduceAmountOnUse: 1

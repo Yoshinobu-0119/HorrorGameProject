@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 1
   itemName: TestMelee
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 466dad71bb81efc46b7655ee37747dee, type: 3}
   baseSellValue: 400
   maxStackSize: 32
   reduceAmountOnUse: 0

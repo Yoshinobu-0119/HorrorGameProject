@@ -23,7 +23,8 @@ public class Player : MonoBehaviour
             bool success = action.Execute(this, item);
             if (success && item.data.maxStackSize > 1)
             {
-                inventory.RemoveItem(slotIndex, 1);
+                if (item.data.reduceAmountOnUse) 
+                    inventory.RemoveItem(slotIndex, 1);
             }
         }
     }

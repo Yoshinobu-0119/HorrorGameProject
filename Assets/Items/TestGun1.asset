@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00469f650877ae8438333fde3ea3df11, type: 3}
   m_Name: TestGun1
   m_EditorClassIdentifier: 
-  id: 1
-  itemName: TestItem
+  id: 0
+  itemName: TestGun
   icon: {fileID: 0}
   baseSellValue: 400
   maxStackSize: 32
+  reduceAmountOnUse: 1
   actions:
   - rid: 1877855982213660754
   references:

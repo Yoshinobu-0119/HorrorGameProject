@@ -13,6 +13,8 @@ public class ItemData : ScriptableObject
     public Sprite icon;
     public int baseSellValue;
     public int maxStackSize = 1;
+    [Space(10)]
+    public bool reduceAmountOnUse;
 
     // ポリモーフィズム対応（インスペクターでアクションを追加・変更可能）
     [SerializeReference] public List<IItemAction> actions = new();

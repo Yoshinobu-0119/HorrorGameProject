@@ -19,7 +19,7 @@ public class InventoryDebugUI : MonoBehaviour
         int selectedIndex = playerController.SelectedSlotIndex;
 
         // UI表示用の領域とスタイル設定
-        GUILayout.BeginArea(new Rect(20, 20, 300, 500), GUI.skin.box);
+        GUILayout.BeginArea(new Rect(20, 20, 300, 1000), GUI.skin.box);
         GUILayout.Label("<b>--- INVENTORY ---</b>");
 
         for (int i = 0; i < inventory.MaxSlots; i++)

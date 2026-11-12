@@ -10,21 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 00469f650877ae8438333fde3ea3df11, type: 3}
-  m_Name: TestGun2
+  m_Name: TestHeal1
   m_EditorClassIdentifier: 
   id: 2
-  itemName: TestItem2
+  itemName: TestItem
   icon: {fileID: 0}
   baseSellValue: 400
   maxStackSize: 32
+  reduceAmountOnUse: 1
   actions:
-  - rid: 1877855982213660754
+  - rid: 1877856181210316882
   references:
     version: 2
     RefIds:
-    - rid: 1877855982213660754
-      type: {class: RangedAttackAction, ns: , asm: Assembly-CSharp}
+    - rid: 1877856181210316882
+      type: {class: HealAction, ns: , asm: Assembly-CSharp}
       data:
-        damage: 1
-        range: 9999
-        bulletPrefab: {fileID: 881579084586576338, guid: 34f621d2e319f5f4fb82665b180e3a29, type: 3}
+        amount: 20

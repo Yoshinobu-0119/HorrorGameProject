@@ -236,7 +236,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.01
   far clip plane: 1000
   field of view: 60
   orthographic: 0
@@ -499,7 +499,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   curSpeed: 0
   maxWalkSpeed: 2
-  maxRunSpeed: 5
+  maxRunSpeed: 4
   gravity: 10
   jumpPow: 1
   acceleration: 20
@@ -633,7 +633,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   generateOnStart: 1
   randomSeedOnStart: 0
-  randomSeed: 54560
+  randomSeed: 666
   generationComplete: 0
   generatorSettings: {fileID: 11400000, guid: a8b64c7384a3d3145bfd3681f5d96903, type: 2}
   AllRooms: []

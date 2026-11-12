@@ -176,14 +176,14 @@ namespace DMDungeonGenerator {
                 }
             }
 
-
-            if(Input.GetKeyUp(KeyCode.Space)) {
-                //restart?
-                Debug.Log("Regenerating the next dungeon");
-                randomSeed++;
-                //need to destroy all the rooms
-                StartGenerator(randomSeed);
-            }
+            //再生成を無効化しておく
+            //if(Input.GetKeyUp(KeyCode.Space)) {
+            //    //restart?
+            //    Debug.Log("Regenerating the next dungeon");
+            //    randomSeed++;
+            //    //need to destroy all the rooms
+            //    StartGenerator(randomSeed);
+            //}
         }
 
         //Call this to start the generator.  
@@ -498,6 +498,27 @@ namespace DMDungeonGenerator {
                 Vector3 sDLocalWithRotation = GetVoxelWorldPos(newDoor.position, rotationNeeded);
                 Vector3 computedRoomOffset = targetWorldVoxPos - sDLocalWithRotation;
 
+                //既存の出入口Bが接続するマスと向きを求める
+                Door targetDoorB = openSet[spawnedDoorBIndex];
+                Vector3 expectedDoorBPosition = GetVoxelWorldPos(
+                    targetDoorB.position + targetDoorB.direction,
+                    targetDoorB.parent.rotation
+                ) + targetDoorB.parent.transform.position;
+                Vector3 targetDoorBDirection = GetVoxelWorldDir(
+                    targetDoorB.direction, targetDoorB.parent.rotation);
+
+                //出入口Aに合わせた配置で、候補の出入口Bの位置を求める
+                Door candidateDoorB = newRoom.Doors[possibleDoorBIndex];
+                Vector3 candidateDoorBPosition =
+                    GetVoxelWorldPos(candidateDoorB.position, rotationNeeded) + computedRoomOffset;
+                float positionTolerance = voxelScale * 0.001f;
+
+                //出入口Bの位置と、両端の出入口が向かい合うことを確認する
+                bool doorsMatch = (candidateDoorBPosition - expectedDoorBPosition).sqrMagnitude <=
+                    positionTolerance * positionTolerance &&
+                    GetVoxelWorldDir(newDoor.direction, rotationNeeded) == -targetDoorDir &&
+                    GetVoxelWorldDir(candidateDoorB.direction, rotationNeeded) == -targetDoorBDirection;
+
                 //AddRoom(newRoom, computedRoomOffset, computedRoomRotation); WORKS! need to make sure it passes the overlap tests first though...!
 
                 List<Vector3> worldVoxels = new List<Vector3>(); //check for overlaps with all of these. MUST BE Mathf.RoundToInt so that the vectors are not like 0.999999999 due to precision issues
@@ -543,7 +564,11 @@ namespace DMDungeonGenerator {
                 }
                 //overlap tests
 
-                if(!anyOverlaps) {
+                //重なりだけでループ候補を採用していた旧条件
+                //if(!anyOverlaps) {
+                //両端がつながり、重なりのない候補を採用する
+                if (!anyOverlaps && doorsMatch)
+                {
                     nextSpawn.isLoopRoom = true;
                     nextSpawn.roomToSpawn = t.roomToSpawn;
                     nextSpawn.roomOffset = computedRoomOffset;
@@ -915,7 +940,9 @@ namespace DMDungeonGenerator {
             AddGlobalVoxels(data, pos, rotation);
 
             if(b) {
+#if UNITY_EDITOR
                 roomObj.GetComponent<GameplayRoom>().ColorRoom(Color.black);
+#endif
             }
             return data;
         }
@@ -1155,10 +1182,10 @@ namespace DMDungeonGenerator {
                     //Gizmos.DrawWireSphere(pos, s / 2f);
 
                     Color roomCol = debugGradient.Evaluate(((float)DungeonGraph[i].depth) / highestDepth);
-                    if(i == 0) roomCol = Color.blue;
-                    if(colourRoomsWithDepth) ColorChildren(DungeonGraph[i].data.gameObject.transform, roomCol);
+                    if (i == 0) roomCol = Color.blue;
+                    if (colourRoomsWithDepth) ColorChildren(DungeonGraph[i].data.gameObject.transform, roomCol);
 
-                    if(drawKeyLocksLabels) {
+                    if (drawKeyLocksLabels) {
                         if(DungeonGraph[i].keyIDs.Count != 0) {
                             string keyLabel = "keys: ";
                             for(int k = 0; k < DungeonGraph[i].keyIDs.Count; k++) {

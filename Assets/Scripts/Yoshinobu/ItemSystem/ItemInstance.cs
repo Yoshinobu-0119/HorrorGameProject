@@ -9,6 +9,7 @@ public class ItemInstance
     public ItemData data;
     public int amount;
     public int currentDurability;
+    
 
     public ItemInstance(ItemData data, int amount = 1)
     {

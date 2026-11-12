@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00469f650877ae8438333fde3ea3df11, type: 3}
   m_Name: Fuck
   m_EditorClassIdentifier: 
-  id: 2
+  id: 3
   itemName: FuckFuckFuck
   icon: {fileID: 0}
   baseSellValue: 0
   maxStackSize: 2
+  reduceAmountOnUse: 0
   actions:
   - rid: 1877856046994686018
   references:

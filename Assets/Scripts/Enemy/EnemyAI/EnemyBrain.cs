@@ -23,7 +23,7 @@ public class EnemyBrain : MonoBehaviour
 
         //—Dæ‡ˆÊ‚ª‚‚¢‡‚É“ü‚ê‘Ö‚¦
         actions.Sort((a, b) =>
-        b.Priolity.CompareTo(a.Priolity));
+        b.Priority.CompareTo(a.Priority));
     }
 
     private void Update()

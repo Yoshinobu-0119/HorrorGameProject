@@ -47,6 +47,10 @@ namespace DMDungeonGenerator {
         
         [Header("Room Prefabs")]
         public DungeonSet generatorSettings;
+
+        //追加:部屋プレハブのルート Scale に合わせて、生成時のボクセル間隔を広げる。
+        [SerializeField, Min(1f)] private float roomScale = 1f;
+        private float VoxelSize => voxelScale * roomScale;
         //room prefabs, should be extracted into a SO so we can swap them easy
         //public GameObject spawnFirstRoom;
         //public List<GameObject> roomPrefabs = new List<GameObject>();
@@ -103,7 +107,8 @@ namespace DMDungeonGenerator {
             if(generateOnStart) {
                 StartGenerator(randomSeed);
             }
-            Debug.Log("Voxel scale is: " + voxelScale);
+            //変更:このジェネレーターの配置間隔を表示する。
+            Debug.Log("Voxel scale is: " + VoxelSize);
         }
 
         public void StartGenerator(int seed) {
@@ -176,14 +181,15 @@ namespace DMDungeonGenerator {
                 }
             }
 
-            //再生成を無効化しておく
-            //if(Input.GetKeyUp(KeyCode.Space)) {
-            //    //restart?
-            //    Debug.Log("Regenerating the next dungeon");
-            //    randomSeed++;
-            //    //need to destroy all the rooms
-            //    StartGenerator(randomSeed);
-            //}
+            //再生成
+            if (Input.GetKeyUp(KeyCode.F8))
+            {
+                //restart?
+                Debug.Log("Regenerating the next dungeon");
+                randomSeed++;
+                //need to destroy all the rooms
+                StartGenerator(randomSeed);
+            }
         }
 
         //Call this to start the generator.  
@@ -273,15 +279,19 @@ namespace DMDungeonGenerator {
                 if(a.parent == b.parent) continue;
                 Vector3 doorAWorldVoxPos = GetVoxelWorldPos(a.position + a.direction, a.parent.rotation) + a.parent.transform.position;
                 Vector3 doorBWorldVoxPos = GetVoxelWorldPos(b.position + b.direction, b.parent.rotation) + b.parent.transform.position;
-                Vector3 dist = new Vector3(Mathf.Abs(doorAWorldVoxPos.x - doorBWorldVoxPos.x), Mathf.Abs(doorAWorldVoxPos.y - doorBWorldVoxPos.y), Mathf.Abs(doorAWorldVoxPos.z - doorBWorldVoxPos.z));
-                float vD = dist.x + dist.y + dist.z + 1;
+                //変更:出入口間の距離を、プレハブの DoorPairData と同じボクセル座標で比較する。
+                Vector3Int delta = Vector3Int.RoundToInt((doorBWorldVoxPos - doorAWorldVoxPos) / VoxelSize);
+                int voxelDistance = Mathf.Abs(delta.x) + Mathf.Abs(delta.y) + Mathf.Abs(delta.z) + 1;
                 //need to find a matching doorpair that fits these critera in order to spawn it in and close it up...
 
-                if(Mathf.RoundToInt(vD) <= 10) { //if the doors are close enough we might be able to connect to (as most rooms I think would be relatively small idk this number is straight outta thin air
+                //変更:ループ接続の探索距離をボクセル数で判定する。
+                if (voxelDistance <= 10)
+                {
                     DoorPairData dd = new DoorPairData();
                     dd.door = b;
                     dd.openSetIndex = i;
-                    dd.deltaPos = doorBWorldVoxPos - doorAWorldVoxPos;
+                    //変更:ループ候補との照合に使う差分をボクセル座標で保存する。
+                    dd.deltaPos = delta;
                     dpd.Add(dd);
                     //Debug.Log("New door pair!: " + i);
                     //Debug.Log("Voxel distance between doors is: " + vD);
@@ -511,7 +521,8 @@ namespace DMDungeonGenerator {
                 Door candidateDoorB = newRoom.Doors[possibleDoorBIndex];
                 Vector3 candidateDoorBPosition =
                     GetVoxelWorldPos(candidateDoorB.position, rotationNeeded) + computedRoomOffset;
-                float positionTolerance = voxelScale * 0.001f;
+                //変更:出入口の位置比較に使う許容誤差を、実際の配置間隔に合わせる。
+                float positionTolerance = VoxelSize * 0.001f;
 
                 //出入口Bの位置と、両端の出入口が向かい合うことを確認する
                 bool doorsMatch = (candidateDoorBPosition - expectedDoorBPosition).sqrMagnitude <=
@@ -802,8 +813,8 @@ namespace DMDungeonGenerator {
 
             //instantiate the doors
             //first door, we will always spawn
-            Vector3 doorOffset = new Vector3(0f, 0.5f, 0f); //to offset it so the gameobject pivot is on the bottom edge of the voxel
-            GameObject spawnedDoor = GameObject.Instantiate(doorToSpawn, doorForProcessing.position - (doorForProcessing.direction * 0.5f*voxelScale) - doorOffset*voxelScale, Quaternion.LookRotation(doorForProcessing.direction), this.transform);
+            //変更:通常の接続と行き止まりに共通のドア配置を使う。
+            GameObject spawnedDoor = SpawnDoor(doorToSpawn, doorForProcessing);
             doorForProcessing.spawnedDoor = spawnedDoor;
 
             //if it's a loop room, we have to spawn in a second door as well
@@ -816,7 +827,8 @@ namespace DMDungeonGenerator {
 
                 loopDoorForProcessing = new Door(loopTargetWorldVoxPos, loopTargetWorldDoorDir, loopTargetDoor.parent);
 
-                loopSpawnedDoor = GameObject.Instantiate(doorToSpawn, loopDoorForProcessing.position - (loopDoorForProcessing.direction * 0.5f) - doorOffset, Quaternion.LookRotation(loopDoorForProcessing.direction), this.transform);
+                //変更:ループの反対側にも、通常と同じドア配置を使う。
+                loopSpawnedDoor = SpawnDoor(doorToSpawn, loopDoorForProcessing);
                 loopDoorForProcessing.spawnedDoor = loopSpawnedDoor;
             }
             //-----doors complete
@@ -875,6 +887,13 @@ namespace DMDungeonGenerator {
                 lastNode.connections.Add(con); //store the connections both ways
                 spawnedDoor.GetComponent<GeneratorDoor>().data = con;
             }
+        }
+
+        //追加:ドアの原点を、接続面の下端中央に置く。
+        private GameObject SpawnDoor(GameObject prefab, Door door)
+        {
+            Vector3 offset = (door.direction + Vector3.up) * (VoxelSize * 0.5f);
+            return Instantiate(prefab, door.position - offset, Quaternion.LookRotation(door.direction), transform);
         }
 
         //Wrapping the interal post step, just generate doors and keys for now (eg, taking each door pair and spawning a gameplay door in it's place)
@@ -978,7 +997,8 @@ namespace DMDungeonGenerator {
         public Vector3 GetVoxelWorldPos(Vector3 localPos, float rotation) {
             Quaternion r = Quaternion.Euler(new Vector3(0, rotation, 0));
             Matrix4x4 m = Matrix4x4.Rotate(r);
-            return m.MultiplyPoint(localPos*voxelScale);
+            //変更:部屋のローカルボクセル座標を、部屋の Scale に対応する距離へ変換する。
+            return m.MultiplyPoint(localPos * VoxelSize);
         }
 
         public Vector3 GetVoxelWorldDir(Vector3 localDir, float rotation) {
@@ -1128,21 +1148,24 @@ namespace DMDungeonGenerator {
             Gizmos.color = Color.blue;
             for(int i = 0; i < openSet.Count; i++) {
                 Vector3 v = GetVoxelWorldPos((openSet[i].position + openSet[i].direction), openSet[i].parent.rotation) + openSet[i].parent.transform.position;
-                Gizmos.DrawWireCube(v, Vector3.one*voxelScale);
+                //変更:未接続の出入口を実際のボクセル寸法で描く。
+                Gizmos.DrawWireCube(v, Vector3.one * VoxelSize);
             }
 
             Gizmos.color = Color.green;
             if(drawGlobalVoxels) {
                 Gizmos.color = globalVoxelColor;
                 foreach(var i in GlobalVoxelGrid) {
-                    Gizmos.DrawWireCube(i.Key, Vector3.one*voxelScale);
+                    //変更:占有ボクセルを実際の寸法で描く。
+                    Gizmos.DrawWireCube(i.Key, Vector3.one * VoxelSize);
                 }
             }
 
             if(drawAllDoors) {
                 Gizmos.color = Color.cyan;
                 for(int i = 0; i < AllDoorsData.Count; i++) {
-                    Gizmos.DrawWireCube(AllDoorsData[i].position, Vector3.one*voxelScale);
+                    //変更:ドアのデバッグ表示も実際のボクセル寸法で描く。
+                    Gizmos.DrawWireCube(AllDoorsData[i].position, Vector3.one * VoxelSize);
                 }
             }
 

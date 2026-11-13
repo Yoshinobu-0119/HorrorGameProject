@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &5488725359741080450
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 5501150146831203405, guid: a5c91660b1d52494bb64795a0e34c3a1, type: 3}
+      propertyPath: m_Name
+      value: LRoom MapCreate
+      objectReference: {fileID: 0}
+    - target: {fileID: 2713913909676432592, guid: a5c91660b1d52494bb64795a0e34c3a1, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2713913909676432592, guid: a5c91660b1d52494bb64795a0e34c3a1, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2713913909676432592, guid: a5c91660b1d52494bb64795a0e34c3a1, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 7
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a5c91660b1d52494bb64795a0e34c3a1, type: 3}
+--- !u!1 &32611840709996495 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5501150146831203405, guid: a5c91660b1d52494bb64795a0e34c3a1, type: 3}
+  m_PrefabInstance: {fileID: 5488725359741080450}
+  m_PrefabAsset: {fileID: 0}

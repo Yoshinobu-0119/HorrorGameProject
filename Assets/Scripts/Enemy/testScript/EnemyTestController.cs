@@ -1,32 +1,42 @@
 
+
 using UnityEngine;
 
 [RequireComponent(typeof(EnemyBrain))]
 [RequireComponent(typeof(EnemySensor))]
+[RequireComponent(typeof(NavMeshEnemyMovement))]
 public class EnemyTestController : MonoBehaviour
 {
-    private TestEnemyAction patrol;
-    private TestEnemyAction chase;
+    [SerializeField] private Transform player;
 
-    private EnemySensor sensor;
+    [Header("巡回設定")]
+    [SerializeField] private float patrolRadius = 10f;
+    [SerializeField] private float waitTime = 2f;
 
     private void Start()
     {
         EnemyBrain brain = GetComponent<EnemyBrain>();
-        sensor = GetComponent<EnemySensor>();
+        EnemySensor sensor = GetComponent<EnemySensor>();
 
-        patrol = new TestEnemyAction("巡回", 10);
-        chase = new TestEnemyAction("追跡", 80);
+        IEnemyMovement movement =
+            GetComponent<NavMeshEnemyMovement>();
 
+        // 巡回行動
+        PatrolAction patrol = new PatrolAction(
+            movement,
+            patrolRadius,
+            waitTime
+        );
+
+        // 追跡行動
+        ChaseAction chase = new ChaseAction(
+            movement,
+            sensor,
+            player
+        );
+
+        // 行動を登録
         brain.RegisterAction(patrol);
         brain.RegisterAction(chase);
-
-        patrol.SetExecutable(true);
-    }
-
-    private void Update()
-    {
-        // プレイヤーの視認状態で追跡を切り替える
-        chase.SetExecutable(sensor.CanSeePlayer);
     }
 }

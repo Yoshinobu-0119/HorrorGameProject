@@ -77,7 +77,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4a8e91e0d16e42c4ebbf1982cfe130e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemData: {fileID: 11400000, guid: 96057a1ecbf0765419943af6d1de5814, type: 2}
+  itemData: {fileID: 11400000, guid: ca6a5922a9542ec41a3e2cf4b572a4cf, type: 2}
   amount: 1
   itemImage: {fileID: 6724723970657554386}
   pickupDelay: 0.5
@@ -193,7 +193,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 3, y: 3, z: 1.33}
+  m_Size: {x: 3, y: 3, z: 3}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4255518410042279151
 GameObject:
@@ -362,7 +362,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 466dad71bb81efc46b7655ee37747dee, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 993f2cfc2d155124ea5daab7a1217a9c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

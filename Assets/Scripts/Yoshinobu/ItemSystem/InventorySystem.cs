@@ -4,9 +4,11 @@ using UnityEngine;
 public class InventorySystem : MonoBehaviour
 {
     [SerializeField] private int maxSlots = 20;
+    [SerializeField] private int maxScrollSlots = 5;
     private ItemInstance[] slots;
     public int MaxSlots => maxSlots;
-    public ItemInstance[] Slots => slots;
+    public int MaxScrollSlots => maxScrollSlots;
+    [SerializeField] public ItemInstance[] Slots => slots;
 
     public event Action OnInventoryChanged;
 
@@ -101,5 +103,58 @@ public class InventorySystem : MonoBehaviour
         slots[slotIndex] = new ItemInstance(newItemData, newAmount);
         OnInventoryChanged?.Invoke();
         return oldItem;
+    }
+
+    /// <summary>
+    /// 指定スロットにアイテムを直接セットする（UI操作用）
+    /// </summary>
+    public void SetSlot(int index, ItemInstance item)
+    {
+        if (index < 0 || index >= slots.Length) return;
+        slots[index] = item;
+        OnInventoryChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// スロットAからスロットBへアイテムを移動（同じなら合算、違うなら入れ替え）
+    /// </summary>
+    public void MoveOrSwapSlot(int fromIndex, int toIndex)
+    {
+        if (fromIndex == toIndex) return;
+        if (fromIndex < 0 || fromIndex >= slots.Length || toIndex < 0 || toIndex >= slots.Length) return;
+
+        ItemInstance fromItem = slots[fromIndex];
+        ItemInstance toItem = slots[toIndex];
+
+        if (fromItem == null) return;
+
+        // 移動先が空ならそのまま移動
+        if (toItem == null)
+        {
+            slots[toIndex] = fromItem;
+            slots[fromIndex] = null;
+        }
+        // 同じアイテムかつスタック可能なら合算
+        else if (fromItem.data == toItem.data && toItem.data.maxStackSize > 1 && toItem.amount < toItem.data.maxStackSize)
+        {
+            int space = toItem.data.maxStackSize - toItem.amount;
+            int moveAmount = Mathf.Min(space, fromItem.amount);
+
+            toItem.amount += moveAmount;
+            fromItem.amount -= moveAmount;
+
+            if (fromItem.amount <= 0)
+            {
+                slots[fromIndex] = null;
+            }
+        }
+        // 違うアイテムなら入れ替え
+        else
+        {
+            slots[toIndex] = fromItem;
+            slots[fromIndex] = toItem;
+        }
+
+        OnInventoryChanged?.Invoke();
     }
 }

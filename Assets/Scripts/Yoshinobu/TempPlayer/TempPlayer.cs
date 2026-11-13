@@ -6,6 +6,7 @@ public class PlayerController : MonoBehaviour
 {
     [Header("参照")]
     private Player player;
+    [SerializeField] private MainGameUIManager uiManager;
     private CharacterController characterController;
     private GameObject cam;
 
@@ -30,9 +31,11 @@ public class PlayerController : MonoBehaviour
 
     [Header("トグル")]
     public bool lockMouse = true;
+    private bool isInventoryOpen = false;
+    public bool IsInventoryOpen => isInventoryOpen;
 
     [Header("インベントリ設定")]
-    [SerializeField] private int selectedSlotIndex = 0; // 選択中スロット
+    [SerializeField] private int selectedSlotIndex = 0;
     public int SelectedSlotIndex => selectedSlotIndex;
 
     private PlayerInput input;
@@ -50,10 +53,7 @@ public class PlayerController : MonoBehaviour
         cam = Camera.main.gameObject;
         characterController = GetComponent<CharacterController>();
 
-        if (lockMouse)
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-        }
+        UpdateCursorLockState();
     }
 
     void Update()
@@ -64,7 +64,6 @@ public class PlayerController : MonoBehaviour
         finalMove.y = verticalVelocity;
         characterController.Move(finalMove * Time.deltaTime);
 
-        // マウスホイールによるスロット切り替え
         HandleScrollInput();
     }
 
@@ -86,9 +85,13 @@ public class PlayerController : MonoBehaviour
 
         CalculateGravity();
 
-        camDirection += inputR * rotateSpeed * Time.deltaTime;
-        camDirection.y = Mathf.Clamp(camDirection.y, -80f, 80f);
-        cam.transform.rotation = Quaternion.Euler(-camDirection.y, camDirection.x, 0.0f);
+        // インベントリを開いている間はカメラ回転を止める
+        if (!isInventoryOpen)
+        {
+            camDirection += inputR * rotateSpeed * Time.deltaTime;
+            camDirection.y = Mathf.Clamp(camDirection.y, -80f, 80f);
+            cam.transform.rotation = Quaternion.Euler(-camDirection.y, camDirection.x, 0.0f);
+        }
     }
 
     private void CalculateGravity()
@@ -104,25 +107,44 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    // ホイールの回転を監視してスロットを変更
     private void HandleScrollInput()
     {
+        if (isInventoryOpen) return;
+
         float scroll = Input.mouseScrollDelta.y;
         if (scroll != 0 && player != null && player.Inventory != null)
         {
-            int maxSlots = player.Inventory.MaxSlots;
+            int maxSlots = player.Inventory.MaxScrollSlots;
             if (maxSlots <= 0) return;
 
             if (scroll > 0)
-            {
-                // 上スクロール (前のスロット)
                 selectedSlotIndex = (selectedSlotIndex - 1 + maxSlots) % maxSlots;
-            }
             else if (scroll < 0)
-            {
-                // 下スクロール (次のスロット)
                 selectedSlotIndex = (selectedSlotIndex + 1) % maxSlots;
-            }
+        }
+    }
+
+    /// <summary>
+    /// インベントリ開閉状態に応じてカーソルロックを切り替える
+    /// </summary>
+    public void SetInventoryOpenState(bool isOpen)
+    {
+        isInventoryOpen = isOpen;
+        lockMouse = !isOpen;
+        UpdateCursorLockState();
+    }
+
+    private void UpdateCursorLockState()
+    {
+        if (lockMouse)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
         }
     }
 
@@ -130,6 +152,9 @@ public class PlayerController : MonoBehaviour
 
     void OnUse(InputValue value)
     {
+        // インベントリを開いている時はアイテム使用（攻撃・回復）を無効化
+        if (isInventoryOpen) return;
+
         if (value.isPressed && player != null)
         {
             player.UseItem(selectedSlotIndex);
@@ -138,11 +163,12 @@ public class PlayerController : MonoBehaviour
 
     void OnScroll(InputValue value)
     {
-        // New Input SystemのScroll値を受け取る場合
+        if (isInventoryOpen) return;
+
         Vector2 scrollValue = value.Get<Vector2>();
         if (scrollValue.y != 0 && player != null && player.Inventory != null)
         {
-            int maxSlots = player.Inventory.MaxSlots;
+            int maxSlots = player.Inventory.MaxScrollSlots;
             if (maxSlots <= 0) return;
 
             if (scrollValue.y > 0)
@@ -157,6 +183,13 @@ public class PlayerController : MonoBehaviour
         selectedSlotIndex = index;
     }
 
+    public void OnInventory(InputValue value)
+    {
+        if (value.isPressed && uiManager != null)
+        {
+            uiManager.ToggleInventory();
+        }
+    }
     void OnMove(InputValue value) => inputL = value.Get<Vector2>();
     void OnLook(InputValue value) => inputR = value.Get<Vector2>();
 }

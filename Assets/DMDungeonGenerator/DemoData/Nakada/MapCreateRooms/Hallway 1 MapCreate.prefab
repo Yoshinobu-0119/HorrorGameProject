@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &5488725359741080450
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 8253573908122011097, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
+      propertyPath: m_Name
+      value: Hallway 1 MapCreate
+      objectReference: {fileID: 0}
+    - target: {fileID: 1980269947929814340, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1980269947929814340, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1980269947929814340, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 7
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
+--- !u!1 &4512970898654893659 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8253573908122011097, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
+  m_PrefabInstance: {fileID: 5488725359741080450}
+  m_PrefabAsset: {fileID: 0}

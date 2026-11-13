@@ -18,14 +18,14 @@ MonoBehaviour:
   minRooms: 50
   useDeadendRooms: 0
   spawnRooms:
-  - {fileID: 5883593812307289775, guid: 5d154a66dcae142498790142a90718e5, type: 3}
+  - {fileID: 2129472290466346285, guid: e2372e7b63a944a4b4e1e13f808fc904, type: 3}
   possibleRooms:
-  - {fileID: 5501150146831203405, guid: a5c91660b1d52494bb64795a0e34c3a1, type: 3}
-  - {fileID: 8253573908122011097, guid: a6dd5c08e68f21143a857c9910cf0964, type: 3}
-  - {fileID: 8253573908122011097, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
-  - {fileID: 8253573908122011097, guid: e15440592d6923b4fbe0af36fe89b8be, type: 3}
-  - {fileID: 4671341197351391010, guid: 67278d84de69a594fa7262753664b6e0, type: 3}
-  - {fileID: 4671341197351391010, guid: 67278d84de69a594fa7262753664b6e0, type: 3}
+  - {fileID: 32611840709996495, guid: 8b5d8ffabc194b399656a474c8e64c25, type: 3}
+  - {fileID: 4512970898654893659, guid: 8b16ad75cf294a9ba601b33561a7eb10, type: 3}
+  - {fileID: 4512970898654893659, guid: 5b02a80ee3904acbbca4687e1c7d0a57, type: 3}
+  - {fileID: 4512970898654893659, guid: 35d684ff50684836a6b6ca50403e5b14, type: 3}
+  - {fileID: 934548273003011232, guid: a23442b325ce47ea92382b2388b131c9, type: 3}
+  - {fileID: 934548273003011232, guid: a23442b325ce47ea92382b2388b131c9, type: 3}
   - {fileID: 5289254555244821984, guid: 150a6387d15c5ce469c6db0f6c3bc42a, type: 3}
   - {fileID: 5289254555244821984, guid: 150a6387d15c5ce469c6db0f6c3bc42a, type: 3}
   - {fileID: 5289254555244821984, guid: 73ee3e26cceea3746930e22c6081c358, type: 3}
@@ -36,7 +36,7 @@ MonoBehaviour:
   - {fileID: 4671341197351391010, guid: 6fda1f75f458a594ebfd544b60ef692c, type: 3}
   possibleLoopRooms: []
   deadendRooms:
-  - {fileID: 5883593812307289775, guid: 5d154a66dcae142498790142a90718e5, type: 3}
+  - {fileID: 2129472290466346285, guid: e2372e7b63a944a4b4e1e13f808fc904, type: 3}
   deadendDoors:
   - {fileID: 6543225304224953113, guid: fbd3f658b1ebdff458b8cad90c540c8d, type: 3}
   doors:

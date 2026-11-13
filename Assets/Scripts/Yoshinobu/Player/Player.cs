@@ -89,11 +89,21 @@ public class Player : MonoBehaviour
     }
 
     /// <summary>
+    /// 指定したアイテムデータ・個数をプレイヤーの前方にドロップする（UI操作用）
+    /// </summary>
+    public void DropItemDirect(ItemData itemData, int amount)
+    {
+        if (itemData == null || amount <= 0) return;
+        SpawnDropItem(itemData, amount);
+    }
+
+    /// <summary>
     /// InputSystem の "ItemDrop" アクションから呼び出されるコールバック
     /// ※InputActions側で Press Interaction (Press And Release) を設定してください
     /// </summary>
     public void OnItemDrop(InputValue value)
     {
+        if (playerController != null && playerController.IsInventoryOpen) return;
         if (value.isPressed)
         {
             // 押し始めた瞬間

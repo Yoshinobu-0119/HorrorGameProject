@@ -16,7 +16,7 @@ MonoBehaviour:
   itemName: TestGun
   icon: {fileID: 21300000, guid: 993f2cfc2d155124ea5daab7a1217a9c, type: 3}
   baseSellValue: 400
-  maxStackSize: 32
+  maxStackSize: 999
   reduceAmountOnUse: 1
   actions:
   - rid: 1877855982213660754

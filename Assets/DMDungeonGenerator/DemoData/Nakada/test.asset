@@ -14,20 +14,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: test
   description: 
-  TargetRooms: 50
-  minRooms: 30
+  TargetRooms: 100
+  minRooms: 50
   useDeadendRooms: 0
   spawnRooms:
   - {fileID: 5883593812307289775, guid: 5d154a66dcae142498790142a90718e5, type: 3}
   possibleRooms:
-  - {fileID: 4671341197351391010, guid: 67278d84de69a594fa7262753664b6e0, type: 3}
   - {fileID: 5501150146831203405, guid: a5c91660b1d52494bb64795a0e34c3a1, type: 3}
   - {fileID: 8253573908122011097, guid: a6dd5c08e68f21143a857c9910cf0964, type: 3}
   - {fileID: 8253573908122011097, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
   - {fileID: 8253573908122011097, guid: e15440592d6923b4fbe0af36fe89b8be, type: 3}
   - {fileID: 4671341197351391010, guid: 67278d84de69a594fa7262753664b6e0, type: 3}
   - {fileID: 4671341197351391010, guid: 67278d84de69a594fa7262753664b6e0, type: 3}
-  - {fileID: 4671341197351391010, guid: 66c601cd79c269b45ba6ab68eb8de2a4, type: 3}
+  - {fileID: 5289254555244821984, guid: 150a6387d15c5ce469c6db0f6c3bc42a, type: 3}
+  - {fileID: 5289254555244821984, guid: 150a6387d15c5ce469c6db0f6c3bc42a, type: 3}
+  - {fileID: 5289254555244821984, guid: 73ee3e26cceea3746930e22c6081c358, type: 3}
+  - {fileID: 5289254555244821984, guid: 2614b81ae767a2b4ba3d8790c0536723, type: 3}
+  - {fileID: 5289254555244821984, guid: 29f0566480c1e48448193137ee84b06a, type: 3}
+  - {fileID: 5289254555244821984, guid: e0e0fcf04eeb0ef4f9de30605cf8ef0c, type: 3}
+  - {fileID: 4671341197351391010, guid: 1f69df5e3b56199459c0a2c0c3e9c97e, type: 3}
+  - {fileID: 4671341197351391010, guid: 6fda1f75f458a594ebfd544b60ef692c, type: 3}
   possibleLoopRooms: []
   deadendRooms:
   - {fileID: 5883593812307289775, guid: 5d154a66dcae142498790142a90718e5, type: 3}

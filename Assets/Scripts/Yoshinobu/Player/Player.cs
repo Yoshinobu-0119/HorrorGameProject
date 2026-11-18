@@ -12,6 +12,9 @@ public class Player : MonoBehaviour
     [SerializeField] private float maxHp = 100f;
     [SerializeField] private float currentHp = 100f;
 
+    [Header("スコア")]
+    [SerializeField] private int goldscore = 0;
+
     [Header("インタラクト設定")]
     [SerializeField] private float interactRange = 3.0f; // アイテムを拾える距離
     [SerializeField] private LayerMask interactLayer = ~0;
@@ -85,7 +88,7 @@ public class Player : MonoBehaviour
                 dropItem.OnInteract(this, slotIndex);
             }
         }
-        Debug.DrawRay(ray.origin, ray.direction * interactRange, Color.red,3f);
+        Debug.DrawRay(ray.origin, ray.direction * interactRange, Color.red, 3f);
     }
 
     /// <summary>
@@ -196,4 +199,26 @@ public class Player : MonoBehaviour
             }
         }
     }
+
+    public void PlusScore(int p_score)
+    {
+        goldscore += p_score;
+        Debug.Log($"宝の金額: {p_score}/現在の金額:{goldscore}");
+    }
+
+    public bool MinusScore(int m_score)
+    {
+        if (goldscore >= m_score)
+        {
+            goldscore -= m_score;
+            Debug.Log($"引かれる金額: {m_score}/現在の金額:{goldscore}");
+            return true;
+        }
+        else
+        {
+            Debug.Log($"お金が足りません");
+            return false;
+        }
+    }
+
 }

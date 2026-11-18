@@ -23,7 +23,8 @@ public class PlayerController : MonoBehaviour
 
     [Header("カメラ")]
     public Vector2 camDirection;
-    public float rotateSpeed = 100f;
+    public float mouseSensitivity = 0.15f;     // マウス用感度（Time.deltaTimeなし基準。現状の25に近い値に調整してください）
+    public float gamepadRotateSpeed = 180f;    // コントローラー用回転速度（1秒あたりの角度）
 
     [Header("入力")]
     [SerializeField] private Vector2 inputL;
@@ -63,8 +64,6 @@ public class PlayerController : MonoBehaviour
         Vector3 finalMove = moveVelocity;
         finalMove.y = verticalVelocity;
         characterController.Move(finalMove * Time.deltaTime);
-
-        HandleScrollInput();
     }
 
     public void PlayerMovement()
@@ -88,7 +87,20 @@ public class PlayerController : MonoBehaviour
         // インベントリを開いている間はカメラ回転を止める
         if (!isInventoryOpen)
         {
-            camDirection += inputR * rotateSpeed * Time.deltaTime;
+            // 現在の操作スキームがGamepadかどうか判定（Input Actionsのスキーム名に合わせて変更してください）
+            bool isGamepad = input.currentControlScheme == "Gamepad";
+
+            if (isGamepad)
+            {
+                // コントローラーは「角速度（度/秒）」なので Time.deltaTime を掛ける
+                camDirection += inputR * gamepadRotateSpeed * Time.deltaTime;
+            }
+            else
+            {
+                // マウスは「移動量（Delta）」なので Time.deltaTime は掛けない
+                camDirection += inputR * mouseSensitivity;
+            }
+
             camDirection.y = Mathf.Clamp(camDirection.y, -80f, 80f);
             cam.transform.rotation = Quaternion.Euler(-camDirection.y, camDirection.x, 0.0f);
         }
@@ -104,23 +116,6 @@ public class PlayerController : MonoBehaviour
         else
         {
             verticalVelocity -= gravity * Time.deltaTime;
-        }
-    }
-
-    private void HandleScrollInput()
-    {
-        if (isInventoryOpen) return;
-
-        float scroll = Input.mouseScrollDelta.y;
-        if (scroll != 0 && player != null && player.Inventory != null)
-        {
-            int maxSlots = player.Inventory.MaxScrollSlots;
-            if (maxSlots <= 0) return;
-
-            if (scroll > 0)
-                selectedSlotIndex = (selectedSlotIndex - 1 + maxSlots) % maxSlots;
-            else if (scroll < 0)
-                selectedSlotIndex = (selectedSlotIndex + 1) % maxSlots;
         }
     }
 

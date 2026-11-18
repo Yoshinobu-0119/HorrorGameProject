@@ -32,6 +32,13 @@ public class MainGameUIManager : MonoBehaviour
     [SerializeField] private float selectMoveDuration = 0.15f;
     [SerializeField] private Ease selectEase = Ease.OutExpo;
 
+    [Header("コントローラー操作設定")]
+    [SerializeField] private float navRepeatDelay = 0.35f; // 長押し時の連続移動開始までの時間
+    [SerializeField] private float navRepeatRate = 0.12f;  // 連続移動の間隔
+    private float nextNavTime = 0f;
+    private bool wasNavigating = false;
+    private bool isUsingGamepadInUI = false; // UI上で最後に使われたデバイス判定
+
     // キャッシュ
     private Image[] slotIcons;
     private TextMeshProUGUI[] slotAmountTexts;
@@ -102,10 +109,15 @@ public class MainGameUIManager : MonoBehaviour
         // 1. 選択枠の追従ターゲット決定
         if (isInventoryOpen)
         {
+            // ★追加：コントローラーのスティック・十字キーでのカーソル移動処理
+            HandleGamepadNavigation();
+
             if (hoveredSlotIndex >= 0)
             {
                 lastHoveredInInventory = hoveredSlotIndex;
+                isUsingGamepadInUI = false; // マウスホバーが起きたらマウスモードへ
             }
+
             // インベントリ開放中は、スロット間の隙間を通っても下のホットバーに勝手に戻らない
             int targetIndex = lastHoveredInInventory;
             if (targetIndex != lastSelectedIndex && targetIndex >= 0 && targetIndex < itemSlotsPos.Length)
@@ -113,6 +125,9 @@ public class MainGameUIManager : MonoBehaviour
                 MoveSelectedIndicator(targetIndex);
                 lastSelectedIndex = targetIndex;
             }
+
+            // ★追加：コントローラーでの決定・半分掴む・捨てる入力
+            HandleGamepadInventoryActions();
         }
         else
         {
@@ -125,10 +140,18 @@ public class MainGameUIManager : MonoBehaviour
             }
         }
 
-        // 2. 掴んでいるアイテムがあればマウスカーソル位置に追従
-        if (heldItem != null && heldItemRoot != null && Mouse.current != null)
+        // 2. 掴んでいるアイテムの追従位置（★マウスとコントローラーで分岐）
+        if (heldItem != null && heldItemRoot != null)
         {
-            heldItemRoot.position = Mouse.current.position.ReadValue();
+            if (isUsingGamepadInUI && lastHoveredInInventory >= 0 && lastHoveredInInventory < itemSlotsPos.Length)
+            {
+                // コントローラー時は選択中スロットの少し右上に表示
+                heldItemRoot.position = itemSlotsPos[lastHoveredInInventory].position + new Vector3(25f, 25f, 0f);
+            }
+            else if (Mouse.current != null)
+            {
+                heldItemRoot.position = Mouse.current.position.ReadValue();
+            }
         }
 
         // 3. インベントリ画面を開いている時の Q キー（ドロップ）処理
@@ -161,6 +184,7 @@ public class MainGameUIManager : MonoBehaviour
         {
             // 開いた瞬間は現在選択中のホットバースロット位置からスタート
             lastHoveredInInventory = playerController != null ? playerController.SelectedSlotIndex : 0;
+
         }
         else
         {
@@ -296,7 +320,7 @@ public class MainGameUIManager : MonoBehaviour
         bool isShift = Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed;
         ItemInstance slotItem = inventory.GetItem(index);
 
-        // 1. 何も掴んでいない状態 -> スロットからアイテムを掴む
+        //何も掴んでいない状態 -> スロットからアイテムを掴む
         if (heldItem == null)
         {
             if (slotItem == null || slotItem.data == null) return;
@@ -317,7 +341,7 @@ public class MainGameUIManager : MonoBehaviour
                 inventory.SetSlot(index, null);
             }
         }
-        // 2. すでにアイテムを掴んでいる状態 -> スロットへ置く / 合算 / 入れ替え
+        //すでにアイテムを掴んでいる状態 -> スロットへ置く / 合算 / 入れ替え
         else
         {
             if (slotItem == null || slotItem.data == null)
@@ -400,7 +424,7 @@ public class MainGameUIManager : MonoBehaviour
         if (player == null || inventory == null) return;
         bool isCtrl = Keyboard.current != null && Keyboard.current.leftCtrlKey.isPressed; // Ctrl+Q で全捨て（単押しQで1個捨て）
 
-        // 1. アイテムをカーソルで掴んでいる場合 -> 掴んでいるアイテムから捨てる
+        //アイテムをカーソルで掴んでいる場合 -> 掴んでいるアイテムから捨てる
         if (heldItem != null)
         {
             int dropCount = isCtrl ? heldItem.amount : 1;
@@ -412,7 +436,7 @@ public class MainGameUIManager : MonoBehaviour
             return;
         }
 
-        // 2. スロットにカーソルを合わせている場合 -> そのスロットから捨てる
+        //スロットにカーソルを合わせている場合 -> そのスロットから捨てる
         if (hoveredSlotIndex >= 0 && hoveredSlotIndex < itemSlotsPos.Length)
         {
             ItemInstance targetItem = inventory.GetItem(hoveredSlotIndex);
@@ -457,6 +481,147 @@ public class MainGameUIManager : MonoBehaviour
                 heldItemAmountText.text = heldItem.amount > 1 ? heldItem.amount.ToString() : "";
             }
         }
+    }
+
+    // =========================================================
+    // ★追加：コントローラー用インベントリ操作ロジック
+    // =========================================================
+
+    private void HandleGamepadNavigation()
+    {
+        if (Gamepad.current == null || itemSlotsPos == null || itemSlotsPos.Length == 0) return;
+
+        // 左スティックと十字キーの両方から入力を取得
+        Vector2 stick = Gamepad.current.leftStick.ReadValue();
+        Vector2 dpad = Gamepad.current.dpad.ReadValue();
+        Vector2 navInput = dpad.sqrMagnitude > 0.1f ? dpad : stick;
+
+        if (navInput.magnitude < 0.5f)
+        {
+            wasNavigating = false;
+            return;
+        }
+
+        isUsingGamepadInUI = true;
+        hoveredSlotIndex = -1; // マウスホバー状態を解除
+
+        if (!wasNavigating)
+        {
+            MoveSelectionByDirection(navInput);
+            wasNavigating = true;
+            nextNavTime = Time.unscaledTime + navRepeatDelay;
+        }
+        else if (Time.unscaledTime >= nextNavTime)
+        {
+            MoveSelectionByDirection(navInput);
+            nextNavTime = Time.unscaledTime + navRepeatRate;
+        }
+    }
+
+    /// <summary>
+    /// 現在のスロット座標から、入力方向に最も近いスロットを探して移動する
+    /// </summary>
+    private void MoveSelectionByDirection(Vector2 dir)
+    {
+        if (lastHoveredInInventory < 0 || lastHoveredInInventory >= itemSlotsPos.Length)
+        {
+            lastHoveredInInventory = 0;
+            return;
+        }
+
+        // 上下左右の4方向に正規化
+        Vector2 cardinalDir = Mathf.Abs(dir.x) > Mathf.Abs(dir.y)
+            ? new Vector2(Mathf.Sign(dir.x), 0f)
+            : new Vector2(0f, Mathf.Sign(dir.y));
+
+        Vector3 currentPos = itemSlotsPos[lastHoveredInInventory].position;
+        int bestIndex = -1;
+        float bestScore = float.MaxValue;
+
+        for (int i = 0; i < itemSlotsPos.Length; i++)
+        {
+            if (i == lastHoveredInInventory || itemSlotsPos[i] == null) continue;
+
+            Vector3 diff = itemSlotsPos[i].position - currentPos;
+            Vector2 diff2D = new Vector2(diff.x, diff.y);
+            float dist = diff2D.magnitude;
+            if (dist < 1f) continue;
+
+            // 入力方向との一致度（内積）をチェック（約45度以内にあるスロットを対象）
+            float dot = Vector2.Dot(diff2D.normalized, cardinalDir);
+            if (dot > 0.6f)
+            {
+                // 距離が近く、かつ方向が真っ直ぐ一致しているスロットを優先
+                float score = dist / (dot * dot);
+                if (score < bestScore)
+                {
+                    bestScore = score;
+                    bestIndex = i;
+                }
+            }
+        }
+
+        if (bestIndex != -1)
+        {
+            lastHoveredInInventory = bestIndex;
+        }
+    }
+
+    private void HandleGamepadInventoryActions()
+    {
+        if (Gamepad.current == null) return;
+
+        // 南ボタン（Xbox: A / PS: ×）：通常の左クリックと同じ（掴む・置く・合算・入れ替え）
+        if (Gamepad.current.buttonSouth.wasPressedThisFrame)
+        {
+            isUsingGamepadInUI = true;
+            OnSlotLeftClick(lastHoveredInInventory);
+        }
+
+        // 北ボタン（Xbox: Y / PS: △）：半分掴む（Shift+左クリック相当）
+        // ※Xボタン(buttonWest)はインベントリ開閉に使われているため、Yボタンに変更
+        if (Gamepad.current.buttonNorth.wasPressedThisFrame)
+        {
+            isUsingGamepadInUI = true;
+            PickHalfWithGamepad(lastHoveredInInventory);
+        }
+
+        // 右スティック押し込み（R3 / rightStickButton）：1個捨てる（Qキー相当）
+        if (Gamepad.current.rightStickButton.wasPressedThisFrame)
+        {
+            isUsingGamepadInUI = true;
+            int prevHover = hoveredSlotIndex;
+            hoveredSlotIndex = lastHoveredInInventory;
+            HandleInventoryDropInput();
+            hoveredSlotIndex = prevHover;
+        }
+
+        // 東ボタン（Xbox: B / PS: ○）：インベントリを閉じる
+        if (Gamepad.current.buttonEast.wasPressedThisFrame)
+        {
+            ToggleInventory();
+        }
+    }
+
+    private void PickHalfWithGamepad(int index)
+    {
+        if (inventory == null || heldItem != null) return;
+
+        ItemInstance slotItem = inventory.GetItem(index);
+        if (slotItem == null || slotItem.data == null) return;
+
+        if (slotItem.amount > 1)
+        {
+            int takeAmount = Mathf.CeilToInt(slotItem.amount / 2f);
+            heldItem = new ItemInstance(slotItem.data, takeAmount);
+            inventory.RemoveItem(index, takeAmount);
+        }
+        else
+        {
+            heldItem = new ItemInstance(slotItem.data, slotItem.amount);
+            inventory.SetSlot(index, null);
+        }
+        UpdateHeldItemVisual();
     }
 
     private void OnDestroy()

@@ -18,6 +18,9 @@ public class InteractableObject : MonoBehaviour
     [Header("実行するギミック")]
     public UnityEvent onInteract;
 
+    // どのオブジェクトが現在UIを表示しているかを共有して記録する
+    private static InteractableObject currentActivePromptOwner = null;
+
     private bool isPlayerInRange = false;
     private bool hasInteracted = false;
     private Transform playerCamera;
@@ -33,14 +36,14 @@ public class InteractableObject : MonoBehaviour
 
     void Update()
     {
-        // 範囲内にいない、または一度きり設定で使用済みの場合は何もしない
+        // 範囲外、または一度きり設定で使用済みの場合はUIの権利を手放す
         if (!isPlayerInRange || (oneTimeOnly && hasInteracted))
         {
-            SetPromptActive(false);
+            ReleasePrompt();
             return;
         }
 
-        // 視線判定が有効な場合、カメラがオブジェクトの方向を向いているか確認
+        // 視線判定
         bool canInteract = true;
         if (requireLookAt && playerCamera != null)
         {
@@ -52,29 +55,47 @@ public class InteractableObject : MonoBehaviour
             }
         }
 
-        // UIの表示切り替え
-        SetPromptActive(canInteract);
-
-        // Fキーが押されたらイベント実行
-        if (canInteract && Input.GetKeyDown(KeyCode.F))
+        if (canInteract)
         {
-            hasInteracted = true;
-            if (oneTimeOnly) SetPromptActive(false);
+            // UIの表示権を要求して表示する
+            RequestPrompt();
 
-            // 登録されたギミックをすべて実行
-            onInteract.Invoke();
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                hasInteracted = true;
+                if (oneTimeOnly) ReleasePrompt();
+
+                onInteract.Invoke();
+            }
+        }
+        else
+        {
+            ReleasePrompt();
         }
     }
 
-    private void SetPromptActive(bool isActive)
+    private void RequestPrompt()
     {
-        if (promptUI != null && promptUI.activeSelf != isActive)
+        // 誰もUIを使っていない、または自分がすでに使っている場合のみ表示
+        if (currentActivePromptOwner == null || currentActivePromptOwner == this)
         {
-            promptUI.SetActive(isActive);
+            currentActivePromptOwner = this;
+            if (promptUI != null && !promptUI.activeSelf)
+                promptUI.SetActive(true);
         }
     }
 
-    // プレイヤーが範囲に入った時
+    private void ReleasePrompt()
+    {
+        // 自分がUIを表示していた場合のみ非表示にして権利を手放す
+        if (currentActivePromptOwner == this)
+        {
+            currentActivePromptOwner = null;
+            if (promptUI != null && promptUI.activeSelf)
+                promptUI.SetActive(false);
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
@@ -83,13 +104,12 @@ public class InteractableObject : MonoBehaviour
         }
     }
 
-    // プレイヤーが範囲から出た時
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = false;
-            SetPromptActive(false);
+            ReleasePrompt();
         }
     }
 }

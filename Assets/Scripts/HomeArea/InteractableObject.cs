@@ -15,8 +15,17 @@ public class InteractableObject : MonoBehaviour
     public bool requireLookAt = false;
     public float lookAngleThreshold = 35f; // 視線の許容角度
 
-    [Header("実行するギミック")]
+    [Header("お金・スコア設定（0なら無料）")]
+    [Tooltip("Playerスクリプトが付いているプレイヤーオブジェクトをアサイン")]
+    public Player player;
+    [Tooltip("支払う金額（0の場合はお金を消費せずそのままギミック発動）")]
+    public int cost = 0;
+
+    [Header("実行するギミック（支払い成功時）")]
     public UnityEvent onInteract;
+
+    [Header("お金が足りない時のイベント（任意）")]
+    public UnityEvent onNotEnoughMoney;
 
     // どのオブジェクトが現在UIを表示しているかを共有して記録する
     private static InteractableObject currentActivePromptOwner = null;
@@ -27,6 +36,8 @@ public class InteractableObject : MonoBehaviour
 
     void Start()
     {
+        currentActivePromptOwner = null;
+
         if (promptUI != null)
             promptUI.SetActive(false);
 
@@ -36,14 +47,12 @@ public class InteractableObject : MonoBehaviour
 
     void Update()
     {
-        // 範囲外、または一度きり設定で使用済みの場合はUIの権利を手放す
         if (!isPlayerInRange || (oneTimeOnly && hasInteracted))
         {
             ReleasePrompt();
             return;
         }
 
-        // 視線判定
         bool canInteract = true;
         if (requireLookAt && playerCamera != null)
         {
@@ -57,11 +66,28 @@ public class InteractableObject : MonoBehaviour
 
         if (canInteract)
         {
-            // UIの表示権を要求して表示する
             RequestPrompt();
 
             if (Input.GetKeyDown(KeyCode.F))
             {
+                // 金額が1以上設定されている場合は支払い判定を行う
+                if (cost > 0)
+                {
+                    if (player == null)
+                    {
+                        Debug.LogWarning("InteractableObjectにPlayerが設定されていません！");
+                        return;
+                    }
+
+                    // お金が足りなければ失敗イベントを呼んで中断
+                    if (!player.MinusScore(cost))
+                    {
+                        onNotEnoughMoney.Invoke();
+                        return;
+                    }
+                }
+
+                // 無料、または支払いに成功した場合のみ実行
                 hasInteracted = true;
                 if (oneTimeOnly) ReleasePrompt();
 
@@ -76,7 +102,6 @@ public class InteractableObject : MonoBehaviour
 
     private void RequestPrompt()
     {
-        // 誰もUIを使っていない、または自分がすでに使っている場合のみ表示
         if (currentActivePromptOwner == null || currentActivePromptOwner == this)
         {
             currentActivePromptOwner = this;
@@ -87,7 +112,6 @@ public class InteractableObject : MonoBehaviour
 
     private void ReleasePrompt()
     {
-        // 自分がUIを表示していた場合のみ非表示にして権利を手放す
         if (currentActivePromptOwner == this)
         {
             currentActivePromptOwner = null;
@@ -101,6 +125,11 @@ public class InteractableObject : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
+            // InspectorでPlayerを入れ忘れても、触れた相手から自動取得する保険
+            if (player == null)
+            {
+                player = other.GetComponentInParent<Player>();
+            }
         }
     }
 

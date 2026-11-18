@@ -6,8 +6,8 @@ public class EnemySensor : MonoBehaviour
     [SerializeField] private Transform player;
 
     [Header("敵の視野")]
-    [SerializeField] private float viewDistance = 10f;
-    [SerializeField, Range(0, 360f)] private float viewAngle = 280f;
+    [SerializeField] private float viewDistance = 5f;
+    [SerializeField, Range(0, 360f)] private float viewAngle = 60f;
     [SerializeField] private float eyeHeight = 1.5f;
     [SerializeField] private float targetHeight = 1f;
 
@@ -18,9 +18,31 @@ public class EnemySensor : MonoBehaviour
     //プレイヤーを視認しているか
     public bool CanSeePlayer { get; private set; }
 
+    //最後にプレイヤーを見た位置
+    public Vector3 LastKnownPosition { get; private set; }
+
+    //過去にプレイヤーを発見したか
+    public bool HasSeenPlayer { get; private set; }
+
+    //今回の視認開始を認識する番号
+    public int DetectionVersion { get; private set; }
+
     private void Update()
     {
+        bool wasVisible = CanSeePlayer;
+
         CanSeePlayer = CheckPlayerVisibility();
+
+        if (CanSeePlayer)
+        {
+            LastKnownPosition = player.position;
+            HasSeenPlayer = true;
+
+            if (!wasVisible)
+            {
+                DetectionVersion++;
+            }
+        }
     }
 
     private bool CheckPlayerVisibility()

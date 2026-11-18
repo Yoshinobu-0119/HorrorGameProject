@@ -11,7 +11,10 @@ public class EnemyTestController : MonoBehaviour
 
     [Header("„‰ñİ’è")]
     [SerializeField] private float patrolRadius = 10f;
-    [SerializeField] private float waitTime = 2f;
+    [SerializeField] private float waitTime = 1f;
+
+    [Header("‘{õİ’è")]
+    [SerializeField] private float searchDuration = 5f;
 
     private void Start()
     {
@@ -28,6 +31,13 @@ public class EnemyTestController : MonoBehaviour
             waitTime
         );
 
+        //‘{õs“®
+        SearchAction search = new SearchAction(
+            movement,
+            sensor,
+            searchDuration
+        );
+
         // ’ÇÕs“®
         ChaseAction chase = new ChaseAction(
             movement,
@@ -37,6 +47,7 @@ public class EnemyTestController : MonoBehaviour
 
         // s“®‚ğ“o˜^
         brain.RegisterAction(patrol);
+        brain.RegisterAction(search);
         brain.RegisterAction(chase);
     }
 }

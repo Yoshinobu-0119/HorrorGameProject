@@ -15,8 +15,20 @@ public class InteractableObject : MonoBehaviour
     public bool requireLookAt = false;
     public float lookAngleThreshold = 35f; // 視線の許容角度
 
-    [Header("実行するギミック")]
+    [Header("お金・スコア設定（0なら無料）")]
+    [Tooltip("Playerスクリプトが付いているプレイヤーオブジェクトをアサイン")]
+    public Player player;
+    [Tooltip("支払う金額（0の場合はお金を消費せずそのままギミック発動）")]
+    public int cost = 0;
+
+    [Header("実行するギミック（支払い成功時）")]
     public UnityEvent onInteract;
+
+    [Header("お金が足りない時のイベント（任意）")]
+    public UnityEvent onNotEnoughMoney;
+
+    // どのオブジェクトが現在UIを表示しているかを共有して記録する
+    private static InteractableObject currentActivePromptOwner = null;
 
     private bool isPlayerInRange = false;
     private bool hasInteracted = false;
@@ -24,6 +36,8 @@ public class InteractableObject : MonoBehaviour
 
     void Start()
     {
+        currentActivePromptOwner = null;
+
         if (promptUI != null)
             promptUI.SetActive(false);
 
@@ -33,14 +47,12 @@ public class InteractableObject : MonoBehaviour
 
     void Update()
     {
-        // 範囲内にいない、または一度きり設定で使用済みの場合は何もしない
         if (!isPlayerInRange || (oneTimeOnly && hasInteracted))
         {
-            SetPromptActive(false);
+            ReleasePrompt();
             return;
         }
 
-        // 視線判定が有効な場合、カメラがオブジェクトの方向を向いているか確認
         bool canInteract = true;
         if (requireLookAt && playerCamera != null)
         {
@@ -52,44 +64,81 @@ public class InteractableObject : MonoBehaviour
             }
         }
 
-        // UIの表示切り替え
-        SetPromptActive(canInteract);
-
-        // Fキーが押されたらイベント実行
-        if (canInteract && Input.GetKeyDown(KeyCode.F))
+        if (canInteract)
         {
-            hasInteracted = true;
-            if (oneTimeOnly) SetPromptActive(false);
+            RequestPrompt();
 
-            // 登録されたギミックをすべて実行
-            onInteract.Invoke();
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                // 金額が1以上設定されている場合は支払い判定を行う
+                if (cost > 0)
+                {
+                    if (player == null)
+                    {
+                        Debug.LogWarning("InteractableObjectにPlayerが設定されていません！");
+                        return;
+                    }
+
+                    // お金が足りなければ失敗イベントを呼んで中断
+                    if (!player.MinusScore(cost))
+                    {
+                        onNotEnoughMoney.Invoke();
+                        return;
+                    }
+                }
+
+                // 無料、または支払いに成功した場合のみ実行
+                hasInteracted = true;
+                if (oneTimeOnly) ReleasePrompt();
+
+                onInteract.Invoke();
+            }
+        }
+        else
+        {
+            ReleasePrompt();
         }
     }
 
-    private void SetPromptActive(bool isActive)
+    private void RequestPrompt()
     {
-        if (promptUI != null && promptUI.activeSelf != isActive)
+        if (currentActivePromptOwner == null || currentActivePromptOwner == this)
         {
-            promptUI.SetActive(isActive);
+            currentActivePromptOwner = this;
+            if (promptUI != null && !promptUI.activeSelf)
+                promptUI.SetActive(true);
         }
     }
 
-    // プレイヤーが範囲に入った時
+    private void ReleasePrompt()
+    {
+        if (currentActivePromptOwner == this)
+        {
+            currentActivePromptOwner = null;
+            if (promptUI != null && promptUI.activeSelf)
+                promptUI.SetActive(false);
+        }
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
+            // InspectorでPlayerを入れ忘れても、触れた相手から自動取得する保険
+            if (player == null)
+            {
+                player = other.GetComponentInParent<Player>();
+            }
         }
     }
 
-    // プレイヤーが範囲から出た時
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = false;
-            SetPromptActive(false);
+            ReleasePrompt();
         }
     }
 }

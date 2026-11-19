@@ -107,8 +107,8 @@ namespace DMDungeonGenerator {
             if(generateOnStart) {
                 StartGenerator(randomSeed);
             }
-            //変更:このジェネレーターの配置間隔を表示する。
-            Debug.Log("Voxel scale is: " + VoxelSize);
+            //このジェネレーターの配置間隔を表示する。
+            //Debug.Log("Voxel scale is: " + VoxelSize);
         }
 
         public void StartGenerator(int seed) {

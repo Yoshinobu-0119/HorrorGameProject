@@ -18,7 +18,7 @@ MonoBehaviour:
   minRooms: 50
   useDeadendRooms: 0
   spawnRooms:
-  - {fileID: 2129472290466346285, guid: e2372e7b63a944a4b4e1e13f808fc904, type: 3}
+  - {fileID: 2129472290466346285, guid: a45f4eb900c3b964bbad2a1f118cd44f, type: 3}
   possibleRooms:
   - {fileID: 32611840709996495, guid: 8b5d8ffabc194b399656a474c8e64c25, type: 3}
   - {fileID: 4512970898654893659, guid: 8b16ad75cf294a9ba601b33561a7eb10, type: 3}

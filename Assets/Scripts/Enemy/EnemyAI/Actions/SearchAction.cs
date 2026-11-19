@@ -55,6 +55,15 @@ public class SearchAction : IEnemyAction
     {
         if (!isSearching) { return; }
 
+        //移動失敗時は捜索終了
+        if (movement.Status == EnemyMoveStatus.Failed)
+        {
+            Debug.LogWarning("捜索地点へ到達できません");
+
+            isSearching = false;
+            return;
+        }
+
         //最後にプレイヤーを見た位置へ到達した場合
         if (!hasArrived &&
             movement.HasReachedDestination())

@@ -50,6 +50,17 @@ public class PatrolAction : IEnemyAction
             return;
         }
 
+        //ˆÚ“®¸”s‚ÍÄİ’è
+        if (movement.Status == EnemyMoveStatus.Failed)
+        {
+            Debug.Log("„‰ñæ‚ğÄİ’è");
+
+            waiting = true;
+            timer = waitTime;
+
+            return;
+        }
+
         if (movement.HasReachedDestination())
         {
             movement.Stop();

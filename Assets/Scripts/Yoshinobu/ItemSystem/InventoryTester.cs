@@ -19,7 +19,12 @@ public class InventoryTester : MonoBehaviour
     {
         if (inventory == null) inventory = GetComponent<InventorySystem>();
 
-        
+        // すでに前のシーンからデータを引き継いでいる場合は初期アイテムを追加しない
+        if (GameSessionData.Instance != null && GameSessionData.Instance.HasSavedData)
+        {
+            return;
+        }
+
         for (int i = 0; i < addItemData.Length; i++)
         {
             inventory.AddItem(addItemData[i].item, addItemData[i].amount);

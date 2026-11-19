@@ -43,6 +43,21 @@ public class Player : MonoBehaviour
         if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
     }
 
+    private void Start()
+    {
+        // 前のシーンから引き継いだデータがあれば復元
+        if (GameSessionData.Instance != null && GameSessionData.Instance.HasSavedData)
+        {
+            LoadFromSession();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // シーン移動などでPlayerが破棄される前に現在の状態を保存
+        SaveToSession();
+    }
+
     private void Update()
     {
         // 長押し判定：規定時間に達した瞬間に全ドロップを実行（指を離す前でも反応する）
@@ -259,4 +274,33 @@ public class Player : MonoBehaviour
         }
     }
 
+
+
+    /// <summary>
+    /// 現在のステータスとインベントリをセッションデータに保存する
+    /// </summary>
+    public void SaveToSession()
+    {
+        if (GameSessionData.Instance == null) return;
+
+        ItemInstance[] currentSlots = inventory != null ? inventory.Slots : null;
+        GameSessionData.Instance.SaveSession(maxHp, currentHp, goldscore, currentSlots);
+    }
+
+    /// <summary>
+    /// セッションデータからステータスとインベントリを復元する
+    /// </summary>
+    public void LoadFromSession()
+    {
+        if (GameSessionData.Instance == null || !GameSessionData.Instance.HasSavedData) return;
+
+        maxHp = GameSessionData.Instance.MaxHp;
+        currentHp = GameSessionData.Instance.CurrentHp;
+        goldscore = GameSessionData.Instance.GoldScore;
+
+        if (inventory != null)
+        {
+            inventory.LoadSlots(GameSessionData.Instance.SavedSlots);
+        }
+    }
 }

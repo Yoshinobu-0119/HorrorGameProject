@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 using TMPro;
 using LitMotion;
 using LitMotion.Extensions;
+using System.Collections.Generic;
+using UnityEngine.EventSystems;
 
 public class MainGameUIManager : MonoBehaviour
 {
@@ -131,20 +133,37 @@ public class MainGameUIManager : MonoBehaviour
             }
 
             int targetIndex = lastHoveredInInventory;
-            // パネルがアニメーション中、またはターゲットが変わった時に位置を更新
-            if ((targetIndex != lastSelectedIndex || panelMoveHandle.IsActive()) && targetIndex >= 0 && targetIndex < itemSlotsPos.Length)
+            if (targetIndex >= 0 && targetIndex < itemSlotsPos.Length)
             {
-                MoveSelectedIndicator(targetIndex);
-                lastSelectedIndex = targetIndex;
+                if (panelMoveHandle.IsActive())
+                {
+                    // パネルスライド中はイージングを作り直さず、スロットにピタッと直接追従させる
+                    SnapSelectedIndicator(targetIndex);
+                    lastSelectedIndex = targetIndex;
+                }
+                else if (targetIndex != lastSelectedIndex)
+                {
+                    // 通常時は滑らかなアニメーションで移動
+                    MoveSelectedIndicator(targetIndex);
+                    lastSelectedIndex = targetIndex;
+                }
             }
 
             HandleGamepadInventoryActions();
         }
         else
         {
+            // インベントリを閉じている時は通常通りホットバーの選択スロットへ
             int targetIndex = playerController != null ? playerController.SelectedSlotIndex : 0;
-            if ((targetIndex != lastSelectedIndex || panelMoveHandle.IsActive()) && targetIndex >= 0 && targetIndex < itemSlotsPos.Length)
+            if (targetIndex != lastSelectedIndex && targetIndex >= 0 && targetIndex < itemSlotsPos.Length)
             {
+                // ★ホイール等でスロットが切り替わった瞬間、
+                //   前回のホットバー位置（本来の起点）が有効ならそこへ一瞬で合わせてから移動を開始する
+                if (lastSelectedIndex >= 0 && lastSelectedIndex < inventory.MaxScrollSlots)
+                {
+                    SnapSelectedIndicator(lastSelectedIndex);
+                }
+
                 MoveSelectedIndicator(targetIndex);
                 lastSelectedIndex = targetIndex;
             }
@@ -203,9 +222,24 @@ public class MainGameUIManager : MonoBehaviour
 
         if (isInventoryOpen)
         {
-            // 開いた瞬間は現在選択中のホットバースロット位置からスタート
-            lastHoveredInInventory = playerController != null ? playerController.SelectedSlotIndex : 0;
+            // ★修正：まず現在のマウスカーソル位置にスロットがあるか判定する
+            int slotUnderMouse = GetSlotIndexUnderMouse();
+            if (slotUnderMouse >= 0)
+            {
+                hoveredSlotIndex = slotUnderMouse;
+                lastHoveredInInventory = slotUnderMouse;
+                isUsingGamepadInUI = false;
+            }
+            else
+            {
+                // カーソル下にスロットがない場合（余白にいる・コントローラー操作時）はホットバー位置から開始
+                hoveredSlotIndex = -1;
+                lastHoveredInInventory = playerController != null ? playerController.SelectedSlotIndex : 0;
+            }
 
+            // 開いた瞬間に選択枠を即座に初期ターゲットへ合わせる
+            lastSelectedIndex = lastHoveredInInventory;
+            SnapSelectedIndicator(lastHoveredInInventory);
         }
         else
         {
@@ -213,6 +247,11 @@ public class MainGameUIManager : MonoBehaviour
             ReturnHeldItemToInventory();
             hoveredSlotIndex = -1;
             draggingFromIndex = -1;
+
+            // 閉じた瞬間にホットバーの選択スロットへ即座に戻す
+            int hotbarIndex = playerController != null ? playerController.SelectedSlotIndex : 0;
+            lastSelectedIndex = hotbarIndex;
+            SnapSelectedIndicator(hotbarIndex);
         }
 
         // LitMotion で画面下へスライドイン / スライドアウト
@@ -630,6 +669,75 @@ public class MainGameUIManager : MonoBehaviour
         }
 
         return model;
+    }
+
+    /// <summary>
+    /// アニメーションを使わず即座にターゲットスロットへ選択枠を合わせる（パネル移動中・初期化用）
+    /// </summary>
+    private void SnapSelectedIndicator(int targetIndex)
+    {
+        if (selectedImg == null || targetIndex < 0 || targetIndex >= itemSlotsPos.Length) return;
+
+        if (selectPosHandle.IsActive()) selectPosHandle.Cancel();
+        if (selectScaleHandle.IsActive()) selectScaleHandle.Cancel();
+
+        RectTransform targetSlot = itemSlotsPos[targetIndex] as RectTransform;
+        RectTransform selectRect = selectedImg as RectTransform;
+
+        if (targetSlot != null && selectRect != null && selectRect.parent != null)
+        {
+            Vector3 worldCenter = targetSlot.TransformPoint(targetSlot.rect.center);
+            Vector3 targetLocalPos = selectRect.parent.InverseTransformPoint(worldCenter);
+            targetLocalPos.z = 0f;
+            selectRect.localPosition = targetLocalPos;
+
+            Vector3 targetLossyScale = targetSlot.lossyScale;
+            Vector3 parentLossyScale = selectRect.parent.lossyScale;
+            selectRect.localScale = new Vector3(
+                parentLossyScale.x != 0 ? targetLossyScale.x / parentLossyScale.x : 1f,
+                parentLossyScale.y != 0 ? targetLossyScale.y / parentLossyScale.y : 1f,
+                1f
+            );
+        }
+        else
+        {
+            selectedImg.position = itemSlotsPos[targetIndex].position;
+            selectedImg.localScale = itemSlotsPos[targetIndex].localScale;
+        }
+    }
+
+    /// <summary>
+    /// 現在のマウスカーソル位置にあるスロット番号を返す（なければ -1）
+    /// </summary>
+    private int GetSlotIndexUnderMouse()
+    {
+        if (Mouse.current == null || EventSystem.current == null || itemSlotsPos == null) return -1;
+
+        PointerEventData pointerData = new PointerEventData(EventSystem.current)
+        {
+            position = Mouse.current.position.ReadValue()
+        };
+
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, results);
+
+        foreach (var hit in results)
+        {
+            InventorySlotUI slotUI = hit.gameObject.GetComponentInParent<InventorySlotUI>();
+            if (slotUI != null)
+            {
+                // itemSlotsPos の何番目に該当するか検索
+                for (int i = 0; i < itemSlotsPos.Length; i++)
+                {
+                    if (itemSlotsPos[i] == slotUI.transform)
+                    {
+                        return i;
+                    }
+                }
+            }
+        }
+
+        return -1;
     }
 
     // =========================================================

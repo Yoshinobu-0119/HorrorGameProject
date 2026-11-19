@@ -1,3 +1,4 @@
+using System.Xml.Schema;
 using UnityEngine;
 public class ItemConversion : MonoBehaviour
 {
@@ -16,7 +17,13 @@ public class ItemConversion : MonoBehaviour
     {
         if (collision.gameObject.GetComponent<DropItem>() != null)
         {
-            int value = collision.gameObject.GetComponent<DropItem>().itemData.baseSellValue;
+            int value = 0;
+
+            int bv = collision.gameObject.GetComponent<DropItem>().itemData.baseSellValue ;
+            int av = collision.gameObject.GetComponent<DropItem>().amount ;
+
+            value = bv * av;
+
             player.PlusScore(value);
 
             Destroy(collision.gameObject);

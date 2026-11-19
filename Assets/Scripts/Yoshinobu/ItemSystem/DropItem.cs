@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class DropItem : MonoBehaviour
 {
     [Header("アイテムデータ")]
-    [SerializeField] private ItemData itemData;
+    [SerializeField] public ItemData itemData;
     [SerializeField] private int amount = 1;
 
     [Header("ビジュアル参照")]

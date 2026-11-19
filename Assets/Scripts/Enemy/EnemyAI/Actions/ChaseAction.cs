@@ -17,6 +17,9 @@ public class ChaseAction : IEnemyAction
     private const float UpdateInterval = 0.2f;
     private const float RetryDelay = 1f;
     private const int MaxRetries = 3;
+    private const float RetryResetTime = 2f;
+
+    private readonly NavMeshEnemyMovement navMovement;
 
     public ChaseAction(IEnemyMovement movement,
             EnemySensor sensor,
@@ -25,11 +28,21 @@ public class ChaseAction : IEnemyAction
         this.movement = movement;
         this.sensor = sensor;
         this.player = player;
+        navMovement = movement as NavMeshEnemyMovement;
     }
 
     public bool CanExecute()
     {
         return player != null && sensor.CanSeePlayer;
+
+        //一定時間正常に移動出来たら再試行回数リセット
+       if (navMovement != null &&
+            retryCount > 0 &&
+            navMovement.HealthyMovementTime >= RetryResetTime)
+        {
+            Debug.Log("追跡が安定したため再試行回数をリセット");
+            retryCount = 0;
+        }
     }
 
     public void Enter()

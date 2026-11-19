@@ -9,6 +9,10 @@ public class NavMeshEnemyMovement : MonoBehaviour,IEnemyMovement
     [SerializeField] private float stuckTimeout = 3f;
     [SerializeField] private float minimumMovement = 0.05f;
 
+    [Header("スタック判定の精度")]
+    [SerializeField] private float minimumDesiredSpeed = 0.1f;
+    [SerializeField] private float arrivalTolerance = 0.1f;
+
     [Header("経路探索")]
     [SerializeField] private float pathTimeout = 3f;
 
@@ -18,7 +22,15 @@ public class NavMeshEnemyMovement : MonoBehaviour,IEnemyMovement
     private float pathTimer;
     private Vector3 lastPosition;
 
+    //正常な移動が続いている時間
+    private float healthyMovementTimer;
+
+    //正常に移動しているか
+    public bool IsMovingNormally { get; private set; }
+
     public EnemyMoveStatus Status { get; private set; } = EnemyMoveStatus.Idle;
+
+    public float HealthyMovementTime => healthyMovementTimer;
 
 
     private void Awake()
@@ -92,14 +104,53 @@ public class NavMeshEnemyMovement : MonoBehaviour,IEnemyMovement
             lastPosition
             );
 
-        if (movedDistance >= minimumMovement)
+    bool isNearDestination =
+            agent.remainingDistance <=
+            agent.stoppingDistance + arrivalTolerance;
+
+        //agentが移動を要求しているか
+        bool wantsToMove =
+            agent.desiredVelocity.magnitude > minimumDesiredSpeed;
+
+        //実際に移動できているか
+        bool isActuallyMoving =
+            agent.velocity.sqrMagnitude > 0.01f;
+
+        //正常な移動状態
+        IsMovingNormally =
+            wantsToMove && isActuallyMoving && !isNearDestination;
+
+        if (isNearDestination)
         {
+            //到着直前の減速はスタック扱いしない
             stuckTimer = 0f;
             lastPosition = transform.position;
         }
+        else if (movedDistance >= minimumMovement)
+        {
+            //実際に位置が変わっている
+            stuckTimer = 0f;
+            lastPosition = transform.position;
+        }
+        else if (wantsToMove)
+        {
+            //移動したいのに進めていない
+            stuckTimer += Time.deltaTime;
+        }
         else
         {
-            stuckTimer += Time.deltaTime;
+            //agentが移動を要求していない場合は
+            //スタック判定を一時停止
+            stuckTimer = 0f;
+        }
+
+        if (IsMovingNormally)
+        {
+            healthyMovementTimer += Time.deltaTime;
+        }
+        else
+        {
+            healthyMovementTimer = 0f;
         }
 
         if (stuckTimer > stuckTimeout)
@@ -204,6 +255,9 @@ public class NavMeshEnemyMovement : MonoBehaviour,IEnemyMovement
     {
         stuckTimer = 0f;
         pathTimer = 0f;
+        healthyMovementTimer = 0f;
+
+        IsMovingNormally = false;
         lastPosition = transform.position;
     }
 }

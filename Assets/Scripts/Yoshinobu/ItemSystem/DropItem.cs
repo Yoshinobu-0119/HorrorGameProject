@@ -6,7 +6,7 @@ public class DropItem : MonoBehaviour
 {
     [Header("アイテムデータ")]
     [SerializeField] public ItemData itemData;
-    [SerializeField] private int amount = 1;
+    [SerializeField] public int amount = 1;
 
     [Header("ビジュアル参照")]
     [SerializeField] private Image itemImage;

@@ -11,11 +11,11 @@ public class Player : MonoBehaviour
     [SerializeField] private AudioSource audioSource;
 
     [Header("ステータス")]
-    [SerializeField] private float maxHp = 100f;
-    [SerializeField] private float currentHp = 100f;
+    [SerializeField] public float maxHp = 100f;
+    [SerializeField] public float currentHp = 100f;
 
     [Header("スコア")]
-    [SerializeField] private int goldscore = 0;
+    [SerializeField] public int goldscore = 0;
 
     [Header("インタラクト設定")]
     [SerializeField] private float interactRange = 3.0f; // アイテムを拾える距離

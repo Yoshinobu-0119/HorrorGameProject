@@ -23,6 +23,8 @@ public class GameSessionData : MonoBehaviour
         }
 
         Instance = this;
+        // Player の子オブジェクトとして配置されていても DontDestroyOnLoad が効くようにルート階層へ切り離す
+        transform.SetParent(null);
         DontDestroyOnLoad(gameObject);
     }
 

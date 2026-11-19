@@ -2,6 +2,8 @@ using UnityEngine;
 
 public interface IEnemyMovement
 {
+    EnemyMoveStatus Status { get; }
+
     //指定された位置へ移動を開始する
     void MoveTo(Vector3 position);
 

@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
     [SerializeField] private InventorySystem inventory;
     [SerializeField] private PlayerController playerController; // 選択スロット取得用
     [SerializeField] private Transform attackOrigin; // カメラや銃口の位置
+    [SerializeField] private AudioSource audioSource;
 
     [Header("ステータス")]
     [SerializeField] private float maxHp = 100f;
@@ -35,6 +36,8 @@ public class Player : MonoBehaviour
     {
         if (inventory == null) inventory = GetComponent<InventorySystem>();
         if (playerController == null) playerController = GetComponent<PlayerController>();
+        if (audioSource == null) audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
     }
 
     private void Update()
@@ -57,13 +60,29 @@ public class Player : MonoBehaviour
         ItemInstance item = inventory.GetItem(slotIndex);
         if (item == null || item.data == null) return;
 
+        bool anyActionSucceeded = false;
+
         foreach (var action in item.data.actions)
         {
             bool success = action.Execute(this, item);
-            if (success && item.data.maxStackSize > 1)
+            if (success)
             {
-                if (item.data.reduceAmountOnUse)
-                    inventory.RemoveItem(slotIndex, 1);
+                anyActionSucceeded = true;
+            }
+        }
+
+        if (anyActionSucceeded)
+        {
+            // 効果音の再生
+            if (item.data.useSound != null && audioSource != null)
+            {
+                audioSource.PlayOneShot(item.data.useSound);
+            }
+
+            // 個数消費処理
+            if (item.data.maxStackSize > 1 && item.data.reduceAmountOnUse)
+            {
+                inventory.RemoveItem(slotIndex, 1);
             }
         }
     }

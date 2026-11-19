@@ -26,11 +26,17 @@ public class MainGameUIManager : MonoBehaviour
     [Header("掴み中アイテム表示 (カーソル追従用)")]
     [SerializeField] private RectTransform heldItemRoot;   // カーソルに追従するUIオブジェクト
     [SerializeField] private Image heldItemIcon;
+    [SerializeField] private Transform heldItemModelRoot;  // ★追加：掴み中の3Dモデル配置先
     [SerializeField] private TextMeshProUGUI heldItemAmountText;
+
+    [Header("UI 3Dモデル表示設定")]
+    [SerializeField] private float uiModelBaseScale = 50f;
 
     [Header("選択枠アニメーション設定")]
     [SerializeField] private float selectMoveDuration = 0.15f;
     [SerializeField] private Ease selectEase = Ease.OutExpo;
+
+
 
     [Header("コントローラー操作設定")]
     [SerializeField] private float navRepeatDelay = 0.35f; // 長押し時の連続移動開始までの時間
@@ -42,6 +48,11 @@ public class MainGameUIManager : MonoBehaviour
     // キャッシュ
     private Image[] slotIcons;
     private TextMeshProUGUI[] slotAmountTexts;
+    private Transform[] slotModelRoots;
+    private GameObject[] slotModelInstances;
+    private ItemData[] slotCachedData;
+    private GameObject heldModelInstance;
+    private ItemData heldCachedData;
 
     // 状態管理
     private bool isInventoryOpen = false;
@@ -98,8 +109,10 @@ public class MainGameUIManager : MonoBehaviour
             lastSelectedIndex = initIndex;
             if (selectedImg != null)
             {
-                selectedImg.position = itemSlotsPos[initIndex].position;
-                selectedImg.localScale = itemSlotsPos[initIndex].localScale;
+                MoveSelectedIndicator(initIndex);
+                // 開始時はアニメーションなしで即座に完了させる
+                if (selectPosHandle.IsActive()) selectPosHandle.Complete();
+                if (selectScaleHandle.IsActive()) selectScaleHandle.Complete();
             }
         }
     }
@@ -109,48 +122,56 @@ public class MainGameUIManager : MonoBehaviour
         // 1. 選択枠の追従ターゲット決定
         if (isInventoryOpen)
         {
-            // ★追加：コントローラーのスティック・十字キーでのカーソル移動処理
             HandleGamepadNavigation();
 
             if (hoveredSlotIndex >= 0)
             {
                 lastHoveredInInventory = hoveredSlotIndex;
-                isUsingGamepadInUI = false; // マウスホバーが起きたらマウスモードへ
+                isUsingGamepadInUI = false;
             }
 
-            // インベントリ開放中は、スロット間の隙間を通っても下のホットバーに勝手に戻らない
             int targetIndex = lastHoveredInInventory;
-            if (targetIndex != lastSelectedIndex && targetIndex >= 0 && targetIndex < itemSlotsPos.Length)
+            // パネルがアニメーション中、またはターゲットが変わった時に位置を更新
+            if ((targetIndex != lastSelectedIndex || panelMoveHandle.IsActive()) && targetIndex >= 0 && targetIndex < itemSlotsPos.Length)
             {
                 MoveSelectedIndicator(targetIndex);
                 lastSelectedIndex = targetIndex;
             }
 
-            // ★追加：コントローラーでの決定・半分掴む・捨てる入力
             HandleGamepadInventoryActions();
         }
         else
         {
-            // インベントリを閉じている時は通常通りホットバーの選択スロットへ
             int targetIndex = playerController != null ? playerController.SelectedSlotIndex : 0;
-            if (targetIndex != lastSelectedIndex && targetIndex >= 0 && targetIndex < itemSlotsPos.Length)
+            if ((targetIndex != lastSelectedIndex || panelMoveHandle.IsActive()) && targetIndex >= 0 && targetIndex < itemSlotsPos.Length)
             {
                 MoveSelectedIndicator(targetIndex);
                 lastSelectedIndex = targetIndex;
             }
         }
 
-        // 2. 掴んでいるアイテムの追従位置（★マウスとコントローラーで分岐）
+        // 2. 掴んでいるアイテムの追従位置（★スクリーン座標→ワールド座標変換に対応）
         if (heldItem != null && heldItemRoot != null)
         {
             if (isUsingGamepadInUI && lastHoveredInInventory >= 0 && lastHoveredInInventory < itemSlotsPos.Length)
             {
-                // コントローラー時は選択中スロットの少し右上に表示
-                heldItemRoot.position = itemSlotsPos[lastHoveredInInventory].position + new Vector3(25f, 25f, 0f);
+                // コントローラー時は選択中スロットの少し右上に表示（Canvas基準のローカル移動）
+                heldItemRoot.position = itemSlotsPos[lastHoveredInInventory].position;
+                heldItemRoot.anchoredPosition += new Vector2(25f, 25f);
             }
             else if (Mouse.current != null)
             {
-                heldItemRoot.position = Mouse.current.position.ReadValue();
+                Vector2 screenPos = Mouse.current.position.ReadValue();
+                Canvas rootCanvas = heldItemRoot.GetComponentInParent<Canvas>();
+                Camera uiCam = (rootCanvas != null && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay)
+                    ? rootCanvas.worldCamera
+                    : null;
+
+                if (RectTransformUtility.ScreenPointToWorldPointInRectangle(
+                    heldItemRoot.parent as RectTransform, screenPos, uiCam, out Vector3 worldPos))
+                {
+                    heldItemRoot.position = worldPos;
+                }
             }
         }
 
@@ -202,6 +223,14 @@ public class MainGameUIManager : MonoBehaviour
             Vector2 targetPos = isInventoryOpen ? shownPanelPos : hiddenPanelPos;
             panelMoveHandle = LMotion.Create(inventoryPanel.anchoredPosition, targetPos, panelAnimDuration)
                 .WithEase(panelEase)
+                .WithOnComplete(() =>
+                {
+                    // パネル移動が終わった瞬間の最新スロット座標へ再吸着させる
+                    int currentTarget = isInventoryOpen
+                        ? lastHoveredInInventory
+                        : (playerController != null ? playerController.SelectedSlotIndex : 0);
+                    MoveSelectedIndicator(currentTarget);
+                })
                 .BindToAnchoredPosition(inventoryPanel);
         }
     }
@@ -211,13 +240,15 @@ public class MainGameUIManager : MonoBehaviour
         int count = itemSlotsPos.Length;
         slotIcons = new Image[count];
         slotAmountTexts = new TextMeshProUGUI[count];
+        slotModelRoots = new Transform[count];
+        slotModelInstances = new GameObject[count];
+        slotCachedData = new ItemData[count];
 
         for (int i = 0; i < count; i++)
         {
             Transform slotTr = itemSlotsPos[i];
             if (slotTr == null) continue;
 
-            // マウスイベント検知コンポーネントを自動付与して初期化
             if (!slotTr.TryGetComponent<InventorySlotUI>(out var slotUI))
             {
                 slotUI = slotTr.gameObject.AddComponent<InventorySlotUI>();
@@ -236,8 +267,27 @@ public class MainGameUIManager : MonoBehaviour
                 if (imgs.Length > 1) slotIcons[i] = imgs[1];
             }
 
+            // ★追加：3Dモデル配置用オブジェクト取得（"ModelRoot" がなければ自動生成）
+            Transform modelRootTr = slotTr.Find("ModelRoot");
+            if (modelRootTr == null)
+            {
+                GameObject rootObj = new GameObject("ModelRoot", typeof(RectTransform));
+                rootObj.layer = slotTr.gameObject.layer; // ★この1行を追加（親スロットと同じUIレイヤーにする）
+                rootObj.transform.SetParent(slotTr, false);
+                rootObj.transform.localPosition = new Vector3(0f, 0f, -20f); // UIの手前に表示
+                modelRootTr = rootObj.transform;
+            }
+            slotModelRoots[i] = modelRootTr;
+
             // 個数テキスト取得
             slotAmountTexts[i] = slotTr.GetComponentInChildren<TextMeshProUGUI>(true);
+            if (slotAmountTexts[i] != null)
+            {
+                // 3Dモデル(Z = -20)よりも手前に描画されるようZ座標をマイナスにする
+                Vector3 textPos = slotAmountTexts[i].transform.localPosition;
+                textPos.z = -60f;
+                slotAmountTexts[i].transform.localPosition = textPos;
+            }
         }
     }
 
@@ -249,13 +299,35 @@ public class MainGameUIManager : MonoBehaviour
         {
             ItemInstance item = inventory.GetItem(i);
             bool hasItem = (item != null && item.data != null && item.amount > 0);
+            ItemData data = hasItem ? item.data : null;
 
-            if (slotIcons[i] != null)
+            // ビジュアル更新（アイテムの種類が変わった時のみ3Dモデルを再生成）
+            if (slotCachedData[i] != data)
             {
-                slotIcons[i].sprite = hasItem ? item.data.icon : null;
-                slotIcons[i].enabled = hasItem;
+                slotCachedData[i] = data;
+
+                if (slotModelInstances[i] != null)
+                {
+                    Destroy(slotModelInstances[i]);
+                    slotModelInstances[i] = null;
+                }
+
+                if (hasItem && data.itemModel != null)
+                {
+                    if (slotIcons[i] != null) slotIcons[i].enabled = false;
+                    slotModelInstances[i] = SpawnUIModel(data, slotModelRoots[i]);
+                }
+                else
+                {
+                    if (slotIcons[i] != null)
+                    {
+                        slotIcons[i].sprite = hasItem ? data.icon : null;
+                        slotIcons[i].enabled = hasItem;
+                    }
+                }
             }
 
+            // 個数テキスト更新
             if (slotAmountTexts[i] != null)
             {
                 if (hasItem && item.amount > 1)
@@ -279,16 +351,46 @@ public class MainGameUIManager : MonoBehaviour
         if (selectPosHandle.IsActive()) selectPosHandle.Cancel();
         if (selectScaleHandle.IsActive()) selectScaleHandle.Cancel();
 
-        Transform targetSlot = itemSlotsPos[targetIndex];
+        RectTransform targetSlot = itemSlotsPos[targetIndex] as RectTransform;
+        RectTransform selectRect = selectedImg as RectTransform;
 
-        selectPosHandle = LMotion.Create(selectedImg.position, targetSlot.position, selectMoveDuration)
-            .WithEase(selectEase)
-            .BindToPosition(selectedImg);
+        if (targetSlot != null && selectRect != null && selectRect.parent != null)
+        {
+            // 1. ターゲットスロットの「視覚的な中心」のワールド座標を取得（Pivotの違いを吸収）
+            Vector3 worldCenter = targetSlot.TransformPoint(targetSlot.rect.center);
 
-        // Slot5~25 は Scale が小さいため、選択枠のサイズも合わせる
-        selectScaleHandle = LMotion.Create(selectedImg.localScale, targetSlot.localScale, selectMoveDuration)
-            .WithEase(selectEase)
-            .BindToLocalScale(selectedImg);
+            // 2. selectedImg の親基準のローカル座標に変換（Z座標のズレやカメラパースの影響を防止）
+            Vector3 targetLocalPos = selectRect.parent.InverseTransformPoint(worldCenter);
+            targetLocalPos.z = 0f; // Z座標を0に固定して手前・奥へのズレを防ぐ
+
+            selectPosHandle = LMotion.Create(selectRect.localPosition, targetLocalPos, selectMoveDuration)
+                .WithEase(selectEase)
+                .BindToLocalPosition(selectRect);
+
+            // スケールも親との比率を考慮して合わせる
+            Vector3 targetLossyScale = targetSlot.lossyScale;
+            Vector3 parentLossyScale = selectRect.parent.lossyScale;
+            Vector3 targetLocalScale = new Vector3(
+                parentLossyScale.x != 0 ? targetLossyScale.x / parentLossyScale.x : 1f,
+                parentLossyScale.y != 0 ? targetLossyScale.y / parentLossyScale.y : 1f,
+                1f
+            );
+
+            selectScaleHandle = LMotion.Create(selectRect.localScale, targetLocalScale, selectMoveDuration)
+                .WithEase(selectEase)
+                .BindToLocalScale(selectRect);
+        }
+        else
+        {
+            // RectTransformでない場合のフォールバック
+            selectPosHandle = LMotion.Create(selectedImg.position, itemSlotsPos[targetIndex].position, selectMoveDuration)
+                .WithEase(selectEase)
+                .BindToPosition(selectedImg);
+
+            selectScaleHandle = LMotion.Create(selectedImg.localScale, itemSlotsPos[targetIndex].localScale, selectMoveDuration)
+                .WithEase(selectEase)
+                .BindToLocalScale(selectedImg);
+        }
     }
 
     // =========================================================
@@ -473,14 +575,61 @@ public class MainGameUIManager : MonoBehaviour
         bool hasHeld = (heldItem != null && heldItem.data != null && heldItem.amount > 0);
         heldItemRoot.gameObject.SetActive(hasHeld);
 
-        if (hasHeld)
+        ItemData data = hasHeld ? heldItem.data : null;
+        if (heldCachedData != data)
         {
-            if (heldItemIcon != null) heldItemIcon.sprite = heldItem.data.icon;
-            if (heldItemAmountText != null)
+            heldCachedData = data;
+            if (heldModelInstance != null)
             {
-                heldItemAmountText.text = heldItem.amount > 1 ? heldItem.amount.ToString() : "";
+                Destroy(heldModelInstance);
+                heldModelInstance = null;
+            }
+
+            if (hasHeld && data.itemModel != null)
+            {
+                if (heldItemIcon != null) heldItemIcon.enabled = false;
+                Transform parent = heldItemModelRoot != null ? heldItemModelRoot : heldItemRoot;
+                heldModelInstance = SpawnUIModel(data, parent);
+            }
+            else
+            {
+                if (heldItemIcon != null)
+                {
+                    heldItemIcon.enabled = hasHeld;
+                    heldItemIcon.sprite = hasHeld ? data.icon : null;
+                }
             }
         }
+
+
+
+        if (hasHeld && heldItemAmountText != null)
+        {
+            heldItemAmountText.text = heldItem.amount > 1 ? heldItem.amount.ToString() : "";
+        }
+    }
+
+    private GameObject SpawnUIModel(ItemData data, Transform parent)
+    {
+        if (data == null || data.itemModel == null || parent == null) return null;
+
+        GameObject model = Instantiate(data.itemModel, parent);
+        model.transform.localPosition = data.offsetPos * uiModelBaseScale;
+        model.transform.localRotation = Quaternion.Euler(data.offsetRotation);
+        model.transform.localScale = data.offsetScale * uiModelBaseScale;
+
+        // UIレイヤーに変更し、当たり判定等を無効化
+        int uiLayer = parent.gameObject.layer;
+        foreach (Transform t in model.GetComponentsInChildren<Transform>(true))
+        {
+            t.gameObject.layer = uiLayer;
+        }
+        foreach (var col in model.GetComponentsInChildren<Collider>(true))
+        {
+            col.enabled = false;
+        }
+
+        return model;
     }
 
     // =========================================================

@@ -17,6 +17,10 @@ public class DropItem : MonoBehaviour
     private float spawnTime;
     private GameObject currentModelInstance;
 
+    [Header("コライダー設定")]
+    [SerializeField] private Collider defaultPhysicsCollider; // 元Prefabの物理用Collider（BoxColliderなど）
+    [SerializeField] private SphereCollider pickupTriggerCollider;
+
     private void Awake()
     {
         spawnTime = Time.time;
@@ -52,10 +56,26 @@ public class DropItem : MonoBehaviour
             currentModelInstance = null;
         }
 
+        // 未割り当てなら自身の非Triggerコライダーを自動取得
+        if (defaultPhysicsCollider == null)
+        {
+            foreach (var col in GetComponents<Collider>())
+            {
+                if (!col.isTrigger)
+                {
+                    defaultPhysicsCollider = col;
+                    break;
+                }
+            }
+        }
+
         // 3Dモデルが設定されている場合
         if (itemData.itemModel != null)
         {
             if (itemImage != null) itemImage.gameObject.SetActive(false);
+
+            // 元Prefabの小さなBoxColliderをオフにする
+            if (defaultPhysicsCollider != null) defaultPhysicsCollider.enabled = false;
 
             Transform parent = modelRoot != null ? modelRoot : transform;
             currentModelInstance = Instantiate(itemData.itemModel, parent);
@@ -63,15 +83,46 @@ public class DropItem : MonoBehaviour
             currentModelInstance.transform.localRotation = Quaternion.Euler(itemData.offsetRotation);
             currentModelInstance.transform.localScale = itemData.offsetScale;
 
-            // ドロップアイテム自身のコライダーや物理挙動と干渉しないよう、モデル側のColliderはすべて無効化
-            foreach (var col in currentModelInstance.GetComponentsInChildren<Collider>(true))
+            // 3Dモデル側のColliderを取得
+            Collider[] modelColliders = currentModelInstance.GetComponentsInChildren<Collider>(true);
+
+            // 1つもColliderが付いていない場合は、MeshFilterを持つオブジェクトすべてにMeshColliderを自動追加
+            if (modelColliders.Length == 0)
             {
-                col.enabled = false;
+                MeshFilter[] meshFilters = currentModelInstance.GetComponentsInChildren<MeshFilter>(true);
+                foreach (var mf in meshFilters)
+                {
+                    if (mf.sharedMesh != null)
+                    {
+                        MeshCollider addedCol = mf.gameObject.AddComponent<MeshCollider>();
+                        addedCol.convex = true; // Rigidbodyと組み合わせるため必須
+                    }
+                }
+
+                // 万が一MeshFilterすらない空モデルだった場合の保険
+                if (meshFilters.Length == 0 && defaultPhysicsCollider != null)
+                {
+                    defaultPhysicsCollider.enabled = true;
+                }
+            }
+            else
+            {
+                // すでにColliderが付いている場合はそれらを有効化
+                foreach (var col in modelColliders)
+                {
+                    col.enabled = true;
+                    if (col is MeshCollider meshCol)
+                    {
+                        meshCol.convex = true;
+                    }
+                }
             }
         }
-        // 3Dモデルがない場合は従来のSpriteを使用
+        // 3Dモデルがない場合は従来のSprite＆元PrefabのBoxColliderを使用
         else
         {
+            if (defaultPhysicsCollider != null) defaultPhysicsCollider.enabled = true;
+
             if (itemImage != null)
             {
                 itemImage.gameObject.SetActive(true);

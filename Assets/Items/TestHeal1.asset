@@ -18,7 +18,7 @@ MonoBehaviour:
   itemModel: {fileID: 919132149155446097, guid: 35018db7c1f6a864b80d6e868cc471a6, type: 3}
   offsetPos: {x: 0, y: 0, z: 0}
   offsetScale: {x: 1, y: 1, z: 1}
-  offsetRotation: {x: 90, y: 0, z: 0}
+  offsetRotation: {x: -90, y: 0, z: 0}
   baseSellValue: 400
   maxStackSize: 32
   useSound: {fileID: 0}

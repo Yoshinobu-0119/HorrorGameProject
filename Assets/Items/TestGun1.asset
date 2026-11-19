@@ -21,7 +21,7 @@ MonoBehaviour:
   offsetRotation: {x: 0, y: 0, z: 0}
   baseSellValue: 400
   maxStackSize: 999
-  useSound: {fileID: 0}
+  useSound: {fileID: 8300000, guid: 584203490776619449882d67b04b7b11, type: 3}
   executeDuration: 0.5
   reduceAmountOnUse: 1
   actions:

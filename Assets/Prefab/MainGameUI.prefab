@@ -1640,7 +1640,7 @@ Canvas:
   m_GameObject: {fileID: 1553486967574572812}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
+  m_RenderMode: 1
   m_Camera: {fileID: 0}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
@@ -1652,7 +1652,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_TargetDisplay: 0
 --- !u!114 &7295047199764945418
 MonoBehaviour:
@@ -1743,9 +1743,13 @@ MonoBehaviour:
   panelEase: 17
   heldItemRoot: {fileID: 1936856686781818704}
   heldItemIcon: {fileID: 4650909642153980939}
+  heldItemModelRoot: {fileID: 0}
   heldItemAmountText: {fileID: 618683080710377055}
+  uiModelBaseScale: 50
   selectMoveDuration: 0.18
   selectEase: 18
+  navRepeatDelay: 0.35
+  navRepeatRate: 0.12
 --- !u!1 &1652959295318114745
 GameObject:
   m_ObjectHideFlags: 0

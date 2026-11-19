@@ -15,8 +15,14 @@ MonoBehaviour:
   id: 2
   itemName: TestHeal
   icon: {fileID: 21300000, guid: 5937f15224feb92408804e6aebb37e01, type: 3}
+  itemModel: {fileID: 919132149155446097, guid: 36eaf9805d57dc142a23dc8200f05dfa, type: 3}
+  offsetPos: {x: 0, y: 0, z: 0}
+  offsetScale: {x: 1, y: 1, z: 1}
+  offsetRotation: {x: 0, y: 0, z: 0}
   baseSellValue: 400
   maxStackSize: 32
+  useSound: {fileID: 0}
+  executeDuration: 0
   reduceAmountOnUse: 1
   actions:
   - rid: 1877856181210316882

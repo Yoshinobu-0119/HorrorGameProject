@@ -157,4 +157,34 @@ public class InventorySystem : MonoBehaviour
 
         OnInventoryChanged?.Invoke();
     }
+
+    /// <summary>
+    /// 保存されたスロット配列を復元する（シーン引き継ぎ用）
+    /// </summary>
+    public void LoadSlots(ItemInstance[] savedSlots)
+    {
+        if (savedSlots == null) return;
+
+        if (slots == null || slots.Length != maxSlots)
+        {
+            slots = new ItemInstance[maxSlots];
+        }
+
+        int copyLength = Mathf.Min(slots.Length, savedSlots.Length);
+        for (int i = 0; i < copyLength; i++)
+        {
+            if (savedSlots[i] != null && savedSlots[i].data != null)
+            {
+                ItemInstance copy = new ItemInstance(savedSlots[i].data, savedSlots[i].amount);
+                copy.currentDurability = savedSlots[i].currentDurability;
+                slots[i] = copy;
+            }
+            else
+            {
+                slots[i] = null;
+            }
+        }
+
+        OnInventoryChanged?.Invoke();
+    }
 }

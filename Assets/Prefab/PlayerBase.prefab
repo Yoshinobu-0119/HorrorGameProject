@@ -38,6 +38,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6724131663636314531}
+  - {fileID: 5668440460168077225}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &8047073711283481362
@@ -128,6 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff576d77e65907e4ea6346eeef44226e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  uiManager: {fileID: 0}
   curSpeed: 0
   maxWalkSpeed: 5
   maxRunSpeed: 10
@@ -136,7 +138,8 @@ MonoBehaviour:
   acceleration: 20
   deceleration: 20
   camDirection: {x: 0, y: 0}
-  rotateSpeed: 25
+  mouseSensitivity: 0.15
+  gamepadRotateSpeed: 180
   inputL: {x: 0, y: 0}
   inputR: {x: 0, y: 0}
   lockMouse: 1
@@ -209,6 +212,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxSlots: 30
+  maxScrollSlots: 5
 --- !u!114 &284165970697130861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -224,8 +228,10 @@ MonoBehaviour:
   inventory: {fileID: 7948625290664734508}
   playerController: {fileID: 0}
   attackOrigin: {fileID: 6724131663636314531}
+  audioSource: {fileID: 0}
   maxHp: 100
   currentHp: 100
+  goldscore: 0
   interactRange: 90
   interactLayer:
     serializedVersion: 2
@@ -371,3 +377,47 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!1 &6532257306913104502
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5668440460168077225}
+  - component: {fileID: 4173216097035348596}
+  m_Layer: 0
+  m_Name: GameSessionData
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5668440460168077225
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6532257306913104502}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5676396705952728389}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4173216097035348596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6532257306913104502}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92dcc1d8d3280e7479da83cc3fbbd935, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

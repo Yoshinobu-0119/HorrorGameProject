@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -25,6 +26,8 @@ public class Player : MonoBehaviour
     [SerializeField] private float dropForwardOffset = 1.0f; // プレイヤーのどれくらい前に生成するか
     [SerializeField] private float dropThrowForce = 4.0f; // 前方に軽く放り投げる力
     [SerializeField] private float holdDurationToDropAll = 0.5f; // 全ドロップになる長押し時間（秒）
+
+    private readonly Dictionary<ItemData, float> _nextUseTimeMap = new();
 
     private bool _isHoldingDrop;
     private float _dropHoldTimer;
@@ -60,6 +63,16 @@ public class Player : MonoBehaviour
         ItemInstance item = inventory.GetItem(slotIndex);
         if (item == null || item.data == null) return;
 
+        // ★追加：使用間隔（executeDuration）のクールダウン判定
+        if (_nextUseTimeMap.TryGetValue(item.data, out float nextAvailableTime))
+        {
+            if (Time.time < nextAvailableTime)
+            {
+                // まだクールダウン中のため使用しない
+                return;
+            }
+        }
+
         bool anyActionSucceeded = false;
 
         foreach (var action in item.data.actions)
@@ -73,14 +86,20 @@ public class Player : MonoBehaviour
 
         if (anyActionSucceeded)
         {
+            // ★追加：アクションが成功したら次回使用可能時刻を更新
+            if (item.data.executeDuration > 0f)
+            {
+                _nextUseTimeMap[item.data] = Time.time + item.data.executeDuration;
+            }
+
             // 効果音の再生
             if (item.data.useSound != null && audioSource != null)
             {
                 audioSource.PlayOneShot(item.data.useSound);
             }
 
-            // 個数消費処理
-            if (item.data.maxStackSize > 1 && item.data.reduceAmountOnUse)
+            // 個数消費処理（1個のみのアイテムでも消費されるよう maxStackSize の制限を外す場合はここを調整）
+            if (item.data.reduceAmountOnUse)
             {
                 inventory.RemoveItem(slotIndex, 1);
             }

@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Linq;
 using System;
 using DMUtils;
+using Unity.AI.Navigation;
 
 namespace DMDungeonGenerator {
     public class DungeonGenerator:MonoBehaviour {
@@ -99,6 +100,8 @@ namespace DMDungeonGenerator {
 
         public List<GraphNode> DungeonGraph = new List<GraphNode>();
 
+        private NavMeshSurface navMeshSurface;
+
 
         private void Awake()
         {
@@ -107,7 +110,10 @@ namespace DMDungeonGenerator {
                 Resources.LoadAll<GameObject>("OriginalRooms").ToList();
         }
 
-        public void Start() {
+        public void Start() 
+        {
+            navMeshSurface = GetComponent<NavMeshSurface>();
+
             generationComplete = true; //we set this to true by default so that StartGenerator knows nothing is running already, and sets it to false when it starts.  
             if(randomSeedOnStart) randomSeed = UnityEngine.Random.Range(0, 9999);
             targetRooms = generatorSettings.TargetRooms;
@@ -908,8 +914,10 @@ namespace DMDungeonGenerator {
         private void PostGeneration() {
             Debug.Log("Dungeon Generator:: Post Generation Starting. ");
 
+            navMeshSurface.BuildNavMesh();
+
             //let the user hook in here once it's all done
-            if(OnComplete != null) OnComplete(this);
+            if (OnComplete != null) OnComplete(this);
         }
 
         public void DestroyAllGeneratedRooms() {

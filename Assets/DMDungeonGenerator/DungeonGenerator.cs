@@ -99,6 +99,14 @@ namespace DMDungeonGenerator {
 
         public List<GraphNode> DungeonGraph = new List<GraphNode>();
 
+
+        private void Awake()
+        {
+            //通常の部屋を一括取得する
+            generatorSettings.possibleRooms =
+                Resources.LoadAll<GameObject>("OriginalRooms").ToList();
+        }
+
         public void Start() {
             generationComplete = true; //we set this to true by default so that StartGenerator knows nothing is running already, and sets it to false when it starts.  
             if(randomSeedOnStart) randomSeed = UnityEngine.Random.Range(0, 9999);

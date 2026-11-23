@@ -11,6 +11,9 @@ public class EnemyBrain : MonoBehaviour
     //çsìÆîªíËÇÃä‘äu
     [SerializeField] private float decisionInterval = 0.2f;
 
+    private bool isRunning = false;
+    public bool IsRunning => isRunning;
+
     private float timer;
 
     //çsìÆÇìoò^Ç∑ÇÈ
@@ -26,8 +29,33 @@ public class EnemyBrain : MonoBehaviour
         b.Priority.CompareTo(a.Priority));
     }
 
+    public void StartBrain()
+    {
+        if (isRunning) { return; }
+
+        isRunning = true;
+
+        Debug.Log("ìGévçlãNìÆ");
+    }
+
+    public void StopBrain()
+    {
+        if (!isRunning) { return; }
+        isRunning = false;
+
+        if (currentAction != null)
+        {
+            currentAction.Exit();
+            currentAction = null;
+        }
+
+        Debug.Log("ìGévçlí‚é~");
+    }
+
     private void Update()
     {
+        if (!isRunning) { return; }
+
         timer -= Time.deltaTime;
         if (timer <= 0f)
         {

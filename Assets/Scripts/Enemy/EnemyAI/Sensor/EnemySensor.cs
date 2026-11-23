@@ -27,6 +27,16 @@ public class EnemySensor : MonoBehaviour
     //今回の視認開始を認識する番号
     public int DetectionVersion { get; private set; }
 
+    public void SetPlayer(Transform target)
+    {
+        player = target;
+
+        CanSeePlayer = false;
+        HasSeenPlayer = false;
+        DetectionVersion = 0;
+        LastKnownPosition = Vector3.zero;
+    }
+
     private void Update()
     {
         bool wasVisible = CanSeePlayer;

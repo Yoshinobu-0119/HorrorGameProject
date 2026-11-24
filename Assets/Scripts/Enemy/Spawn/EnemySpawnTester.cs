@@ -1,0 +1,15 @@
+using UnityEngine;
+
+public class EnemySpawnTester : MonoBehaviour
+{
+    [SerializeField] private EnemySpawner spawner;
+
+    private void Update()
+    {
+        // PÉLÅ[Ç≈ìGÇê∂ê¨
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            spawner.SpawnEnemies();
+        }
+    }
+}

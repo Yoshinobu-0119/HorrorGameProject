@@ -34,15 +34,6 @@ public class ChaseAction : IEnemyAction
     public bool CanExecute()
     {
         return player != null && sensor.CanSeePlayer;
-
-        //一定時間正常に移動出来たら再試行回数リセット
-       if (navMovement != null &&
-            retryCount > 0 &&
-            navMovement.HealthyMovementTime >= RetryResetTime)
-        {
-            Debug.Log("追跡が安定したため再試行回数をリセット");
-            retryCount = 0;
-        }
     }
 
     public void Enter()
@@ -58,6 +49,15 @@ public class ChaseAction : IEnemyAction
     public void Execute()
     {
         if (player == null) { return; }
+
+        //一定時間正常に移動出来たら再試行回数リセット
+        if (navMovement != null &&
+             retryCount > 0 &&
+             navMovement.HealthyMovementTime >= RetryResetTime)
+        {
+            Debug.Log("追跡が安定したため再試行回数をリセット");
+            retryCount = 0;
+        }
 
         //移動失敗を検知
         if (movement.Status == EnemyMoveStatus.Failed &&

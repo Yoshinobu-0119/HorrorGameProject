@@ -808,6 +808,14 @@ PrefabInstance:
       value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 4844207213972073501, guid: 32651b55829717b44b9551b3ade00c9a, type: 3}
+      propertyPath: acceleration
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4844207213972073501, guid: 32651b55829717b44b9551b3ade00c9a, type: 3}
+      propertyPath: deceleration
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4844207213972073501, guid: 32651b55829717b44b9551b3ade00c9a, type: 3}
       propertyPath: maxWalkSpeed
       value: 8
       objectReference: {fileID: 0}

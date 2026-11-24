@@ -121,7 +121,6 @@ GameObject:
   - component: {fileID: 3272401867603552163}
   - component: {fileID: 372135580678864088}
   - component: {fileID: 2661394855238463236}
-  - component: {fileID: 8993510077669801465}
   m_Layer: 5
   m_Name: MiniMapRoundWall
   m_TagString: Untagged
@@ -138,7 +137,7 @@ Transform:
   m_GameObject: {fileID: 8244654963976214364}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 2.1, z: 0}
+  m_LocalPosition: {x: 0, y: 0.04, z: 0}
   m_LocalScale: {x: 1.1, y: 0.1, z: 1.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -197,25 +196,3 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &8993510077669801465
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8244654963976214364}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 1277877728278208915, guid: c82330d7e94ab4341aee3d90cd9ae92d, type: 3}

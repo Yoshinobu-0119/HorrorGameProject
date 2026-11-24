@@ -354,7 +354,6 @@ GameObject:
   - component: {fileID: 6865557518231107286}
   - component: {fileID: 6490829065468525686}
   - component: {fileID: 5497562243337291554}
-  - component: {fileID: 6783358055571535880}
   m_Layer: 5
   m_Name: EndWall
   m_TagString: Untagged
@@ -371,7 +370,7 @@ Transform:
   m_GameObject: {fileID: 6494305075095760583}
   serializedVersion: 2
   m_LocalRotation: {x: -0.5, y: -0.5, z: -0.5, w: 0.5}
-  m_LocalPosition: {x: -0.47999996, y: 0.6, z: 0}
+  m_LocalPosition: {x: -0.47999996, y: -0.4, z: 0}
   m_LocalScale: {x: 1, y: 0.15, z: 0.083327}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -430,27 +429,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &6783358055571535880
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6494305075095760583}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &5488725359741080450
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -647,6 +625,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Doorway (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 5266665699004031668, guid: 6f4acab1e5ab978448fc85d88ed0b7a3, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6631639798079760259, guid: 6f4acab1e5ab978448fc85d88ed0b7a3, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -661,11 +643,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6631639798079760259, guid: 6f4acab1e5ab978448fc85d88ed0b7a3, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.4599609
+      value: -0.49999997
       objectReference: {fileID: 0}
     - target: {fileID: 6631639798079760259, guid: 6f4acab1e5ab978448fc85d88ed0b7a3, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.46810398
+      value: -0.488578
       objectReference: {fileID: 0}
     - target: {fileID: 6631639798079760259, guid: 6f4acab1e5ab978448fc85d88ed0b7a3, type: 3}
       propertyPath: m_LocalPosition.z

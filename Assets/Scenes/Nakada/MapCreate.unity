@@ -859,7 +859,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &921495991
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -875,8 +875,10 @@ MonoBehaviour:
   inventory: {fileID: 921495992}
   playerController: {fileID: 0}
   attackOrigin: {fileID: 110794469}
+  audioSource: {fileID: 0}
   maxHp: 100
   currentHp: 100
+  goldscore: 0
   interactRange: 3
   interactLayer:
     serializedVersion: 2
@@ -975,7 +977,8 @@ MonoBehaviour:
   acceleration: 20
   deceleration: 20
   camDirection: {x: 0, y: 0}
-  rotateSpeed: 25
+  mouseSensitivity: 0.15
+  gamepadRotateSpeed: 180
   inputL: {x: 0, y: 0}
   inputR: {x: 0, y: 0}
   lockMouse: 1

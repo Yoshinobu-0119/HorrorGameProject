@@ -825,7 +825,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5676396705952728389, guid: 32651b55829717b44b9551b3ade00c9a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.81
+      value: -2
       objectReference: {fileID: 0}
     - target: {fileID: 5676396705952728389, guid: 32651b55829717b44b9551b3ade00c9a, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1083,6 +1083,7 @@ GameObject:
   - component: {fileID: 1493605659}
   - component: {fileID: 1493605658}
   - component: {fileID: 1493605656}
+  - component: {fileID: 1493605660}
   m_Layer: 0
   m_Name: MiniMapCamera
   m_TagString: Untagged
@@ -1200,6 +1201,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1684848294}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
+--- !u!114 &1493605660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1493605655}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5e56cecadf0dad4fb2e2aaa27cdeac8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floorHeight: 7
 --- !u!1 &1662387253
 GameObject:
   m_ObjectHideFlags: 0

@@ -142,7 +142,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
-  viewDistance: 10
+  viewDistance: 30
   viewAngle: 40
   eyeHeight: 1.5
   targetHeight: 1
@@ -159,8 +159,8 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 5
-  m_Acceleration: 900
+  m_Speed: 10
+  m_Acceleration: 1000
   avoidancePriority: 50
   m_AngularSpeed: 1000
   m_StoppingDistance: 1.5
@@ -212,6 +212,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa71d3cd70021bc4c80e6f93adc63d56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  patrolRadius: 35
+  patrolRadius: 50
   waitTime: 1
-  searchDuration: 5
+  searchDuration: 2

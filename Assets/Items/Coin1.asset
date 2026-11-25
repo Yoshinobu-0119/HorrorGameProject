@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 3
   itemName: coin1
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 5937f15224feb92408804e6aebb37e01, type: 3}
   itemModel: {fileID: 7242137530764571383, guid: 2e7faf7ec220a1c498a7b67abbe576e0, type: 3}
   offsetPos: {x: 0, y: 0, z: 0}
-  offsetScale: {x: 1, y: 1, z: 1}
-  offsetRotation: {x: 0, y: 0, z: 0}
+  offsetScale: {x: 50, y: 50, z: 50}
+  offsetRotation: {x: 0, y: 0, z: 90}
   baseSellValue: 5
   maxStackSize: 5
   useSound: {fileID: 0}

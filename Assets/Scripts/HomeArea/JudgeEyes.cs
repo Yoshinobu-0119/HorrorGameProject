@@ -9,6 +9,13 @@ public class JudgeEyes : MonoBehaviour
         SceneManager.LoadScene(NextScene);
     }
 
-
+    public void EndGAME()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
+    }
 
 }

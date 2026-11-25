@@ -5,9 +5,12 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/Scenes/Shibuya/Title/TitleScene.unity
+    guid: f5135cb34c870004caa0ef5d51319a93
   - enabled: 1
     path: Assets/Scenes/Shibuya/HomeArea.unity
     guid: d6d32c4d3254c054fb8b98a37d79743a

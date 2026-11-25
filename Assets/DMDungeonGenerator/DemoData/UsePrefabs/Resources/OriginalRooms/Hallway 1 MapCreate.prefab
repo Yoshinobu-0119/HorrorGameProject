@@ -201,10 +201,6 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 5
       objectReference: {fileID: 0}
-    - target: {fileID: 288165366063928916, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value:
-      objectReference: {fileID: 2100000, guid: d7034893c041f934b87482285fe01364, type: 2}
     - target: {fileID: 507333737468502866, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
       propertyPath: m_Layer
       value: 5
@@ -225,10 +221,6 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1782782849919195000, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value:
-      objectReference: {fileID: 2100000, guid: d7034893c041f934b87482285fe01364, type: 2}
     - target: {fileID: 1924481349289990805, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
       propertyPath: m_Layer
       value: 5
@@ -265,10 +257,6 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 5
       objectReference: {fileID: 0}
-    - target: {fileID: 3868075915464346762, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value:
-      objectReference: {fileID: 2100000, guid: d7034893c041f934b87482285fe01364, type: 2}
     - target: {fileID: 3919209238579664006, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
       propertyPath: m_Layer
       value: 0
@@ -277,14 +265,6 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4347370062617384050, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value:
-      objectReference: {fileID: 2100000, guid: d7034893c041f934b87482285fe01364, type: 2}
-    - target: {fileID: 4441219998992411103, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value:
-      objectReference: {fileID: 2100000, guid: d7034893c041f934b87482285fe01364, type: 2}
     - target: {fileID: 4582703499019373694, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
       propertyPath: m_Layer
       value: 0
@@ -297,10 +277,6 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 5
       objectReference: {fileID: 0}
-    - target: {fileID: 6418574656904088990, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value:
-      objectReference: {fileID: 2100000, guid: d7034893c041f934b87482285fe01364, type: 2}
     - target: {fileID: 8253573908122011097, guid: aa97d9e988777b24ab8399f1eedefa23, type: 3}
       propertyPath: m_Name
       value: Hallway 1 MapCreate

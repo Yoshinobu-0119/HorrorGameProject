@@ -101,7 +101,6 @@ namespace DMDungeonGenerator {
         public List<GraphNode> DungeonGraph = new List<GraphNode>();
 
         private NavMeshSurface navMeshSurface;
-        [SerializeField] private EnemySpawner enemySpawner;
 
 
         private void Awake()
@@ -916,7 +915,6 @@ namespace DMDungeonGenerator {
             Debug.Log("Dungeon Generator:: Post Generation Starting. ");
 
             navMeshSurface.BuildNavMesh();
-            enemySpawner.SpawnEnemies();
 
             //let the user hook in here once it's all done
             if (OnComplete != null) OnComplete(this);

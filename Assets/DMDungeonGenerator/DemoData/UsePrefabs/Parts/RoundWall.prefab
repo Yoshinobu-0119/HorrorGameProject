@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3380683824486258416}
   - component: {fileID: 652579182931960378}
   - component: {fileID: -2561495314609303329}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: RoundWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -66,7 +66,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: c2eb70eba0005794599e2bbb0d2a4cb8, type: 2}
+  - {fileID: 2100000, guid: d36865695650f08409e1fea5e12c4c58, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -174,7 +174,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e83a499e7325c5a49a228f390ef75596, type: 2}
+  - {fileID: 2100000, guid: 85dab9e289d5310489dd403fbf0b2283, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

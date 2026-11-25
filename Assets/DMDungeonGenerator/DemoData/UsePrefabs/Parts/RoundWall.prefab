@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3380683824486258416}
   - component: {fileID: 652579182931960378}
   - component: {fileID: -2561495314609303329}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RoundWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}

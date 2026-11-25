@@ -212,6 +212,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa71d3cd70021bc4c80e6f93adc63d56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  patrolRadius: 10
+  patrolRadius: 35
   waitTime: 1
   searchDuration: 5

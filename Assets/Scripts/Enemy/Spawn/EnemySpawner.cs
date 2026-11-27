@@ -1,12 +1,14 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections.Generic;
 
 public class EnemySpawner : MonoBehaviour
 {
     [Header("生成設定")]
-    [SerializeField] private GameObject enemyPrefab;
+    [SerializeField]
+    private List<EnemySpawnSetting> enemySettings
+    = new List<EnemySpawnSetting>();
     [SerializeField] private Transform player;
-    [SerializeField] private int spawnCount = 1;
 
     [Header("安全確認")]
     [SerializeField] private LayerMask obstacleMask;
@@ -18,25 +20,49 @@ public class EnemySpawner : MonoBehaviour
     //外部から敵の生産を開始する     
     public void SpawnEnemies()
     {
-        if (enemyPrefab == null || player == null)
+        // プレイヤー参照の確認
+        if (player == null)
         {
-            Debug.LogWarning("敵PrefabまたはPlayerが未設定です");
             return;
         }
 
-        //現在構築されているナビメッシュの情報を取得
+        // 敵の生成設定を確認
+        if (enemySettings == null ||
+            enemySettings.Count == 0)
+        {
+            return;
+        }
+
+        // NavMeshの情報を取得
         NavMeshTriangulation navMesh =
             NavMesh.CalculateTriangulation();
 
         if (navMesh.indices.Length < 3)
         {
-            Debug.LogWarning("NavMeshが存在しません");
             return;
         }
 
-        for (int i = 0; i < spawnCount; i++)
+        // 敵の種類ごとに生成処理を行う
+        foreach (EnemySpawnSetting setting in enemySettings)
         {
-            SpawnEnemy(enemyPrefab, navMesh);
+            if (setting == null)
+                continue;
+
+            // 生成数が0以下ならスキップ
+            if (setting.spawnCount <= 0)
+                continue;
+
+            // Prefabが設定されていなければスキップ
+            if (setting.enemyPrefab == null)
+            {
+                continue;
+            }
+
+            // 指定された数だけ敵を生成
+            for (int i = 0; i < setting.spawnCount; i++)
+            {
+                SpawnEnemy(setting.enemyPrefab, navMesh);
+            }
         }
     }
 
@@ -53,14 +79,12 @@ public class EnemySpawner : MonoBehaviour
         if (capsule == null || prefabAgent == null ||
             prefab.GetComponent<EnemyAIController>() == null)
         {
-            Debug.LogWarning("敵Prefabの構成が不正です");
             return;
         }
 
         // 今回はY軸方向のカプセルを使用
         if (capsule.direction != 1)
         {
-            Debug.LogWarning("CapsuleColliderのDirectionをYにしてください");
             return;
         }
 
@@ -133,14 +157,8 @@ public class EnemySpawner : MonoBehaviour
 
             // 次の敵の生成時に衝突判定へ反映
             Physics.SyncTransforms();
-            Debug.Log("敵のスポーン成功");
-
             return;
         }
-
-        Debug.LogWarning(
-           "安全なスポーン位置が見つかりませんでした"
-           );
     }
 
     private Vector3 GetRandomNavMeshPoint(

@@ -15,7 +15,7 @@ MonoBehaviour:
   id: 0
   itemName: TestGun
   icon: {fileID: 21300000, guid: 993f2cfc2d155124ea5daab7a1217a9c, type: 3}
-  itemModel: {fileID: 919132149155446097, guid: 36eaf9805d57dc142a23dc8200f05dfa, type: 3}
+  itemModel: {fileID: 4186898071265656926, guid: cfb314df5092ae4409bfacb86d830aa2, type: 3}
   offsetPos: {x: 0, y: 0, z: 0}
   offsetScale: {x: 1, y: 1, z: 1}
   offsetRotation: {x: 0, y: 0, z: 0}

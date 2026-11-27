@@ -29,7 +29,6 @@ public class PatrolAction : IEnemyAction
 
     public void Enter()
     {
-        Debug.Log("„‰ñŠJn");
 
 
         waiting = false;
@@ -53,7 +52,6 @@ public class PatrolAction : IEnemyAction
         //ˆÚ“®¸”s‚ÍÄİ’è
         if (movement.Status == EnemyMoveStatus.Failed)
         {
-            Debug.Log("„‰ñæ‚ğÄİ’è");
 
             waiting = true;
             timer = waitTime;
@@ -87,7 +85,6 @@ public class PatrolAction : IEnemyAction
 
     public void Exit()
     {
-        Debug.Log("„‰ñI—¹");
         movement.Stop();
     }
 

@@ -38,7 +38,6 @@ public class ChaseAction : IEnemyAction
 
     public void Enter()
     {
-        Debug.Log("追跡開始");
 
         updateTimer = 0f;
         retryTimer = 0f;
@@ -55,7 +54,6 @@ public class ChaseAction : IEnemyAction
              retryCount > 0 &&
              navMovement.HealthyMovementTime >= RetryResetTime)
         {
-            Debug.Log("追跡が安定したため再試行回数をリセット");
             retryCount = 0;
         }
 
@@ -67,7 +65,6 @@ public class ChaseAction : IEnemyAction
 
             if (retryCount > MaxRetries)
             {
-                Debug.LogWarning("追跡の再試行回数を超過しました");
 
                 isRecovering = true;
                 retryTimer = RetryDelay * 3f;
@@ -109,7 +106,6 @@ public class ChaseAction : IEnemyAction
 
     public void Exit()
     {
-        Debug.Log("追跡終了");
         movement.Stop();
 
         isRecovering = false;
